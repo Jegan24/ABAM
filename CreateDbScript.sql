@@ -1,0 +1,14 @@
+﻿IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = 'ABAM')
+BEGIN
+    CREATE DATABASE ABAM
+END
+GO
+    USE ABAM
+GO
+
+CREATE TABLE Players
+(
+    PlayerID    UNIQUEIDENTIFIER    NOT NULL,
+    UserName    VARCHAR(100)        NOT NULL,
+
+)
