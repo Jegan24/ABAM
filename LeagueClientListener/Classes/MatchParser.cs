@@ -68,7 +68,7 @@ namespace ABAM_Stats.Classes
 
             sqlCommand.CommandText =
                 $"INSERT INTO Players (AccountID, SummonerName, SummonerID, TrackStats) " +
-                $"VALUES ({player.accountId}, '{player.summonerName}', {player.summonerId}, 0)";
+                $"VALUES ({player.accountId}, '{player.summonerName}', {player.summonerId}, 1)";
             sqlCommand.Connection = sqlConnection;
 
             await sqlCommand.ExecuteNonQueryAsync();

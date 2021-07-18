@@ -190,30 +190,3 @@ SELECT * FROM MatchTeamParticipantStats
 SELECT * FROM Players
 SELECT COUNT(*), SummonerName FROM Players JOIN MatchTeamParticipants ON Players.AccountID = MatchTeamParticipants.AccountID GROUP BY SummonerName
 SELECT * FROM MatchTeamParticipantStats WHERE AccountID IN (SELECT AccountID FROM Players WHERE SummonerName = 'iPooUnicorns')
-
-SELECT TOP 10 B.SummonerName, MAX(A.Kills) AS 'Kills' FROM MatchTeamParticipantStats AS A JOIN Players B ON A.AccountID = B.AccountID GROUP BY B.SummonerName ORDER BY MAX(A.Kills) DESC
-
-SELECT TOP 20 
-	B.SummonerName, 
-	SUM(A.Kills * 1.0 + A.Kills * 1.0) / SUM(A.Deaths * 1.0) AS 'KDA',
-	COUNT(*) AS 'GameCount'
-FROM 
-	MatchTeamParticipantStats AS A 
-	JOIN Players B 
-	ON A.AccountID = B.AccountID 
-	JOIN (
-		SELECT 
-			AccountID,
-			COUNT(*) AS 'GameCount'
-		FROM
-			MatchTeamParticipantStats
-		GROUP BY
-			AccountID
-	) AS C
-	ON A.AccountID = C.AccountID
-WHERE
-	C.GameCount > 1
-GROUP BY 
-	B.SummonerName 
-ORDER BY 
-	SUM(A.Kills * 1.0 + A.Kills * 1.0) / SUM(A.Deaths * 1.0) DESC
