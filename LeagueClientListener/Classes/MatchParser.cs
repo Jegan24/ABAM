@@ -27,10 +27,12 @@ namespace ABAM_Stats.Classes
             foreach (var match in matches)
             {
                 //var transaction = await sqlConnection.BeginTransactionAsync();
-                if (!matchIDsInDb.Contains(match.gameId))
+                // skip games already in db and ignore non-custom games
+                if (matchIDsInDb.Contains(match.gameId) || match.queueId != 0)
                 {
-                    await AddMatchToDb(match);
+                    continue;
                 }
+                await AddMatchToDb(match);
                 foreach (var player in match.participantIdentities.Select(p => p.player))
                 {
                     if (!accountIDsInDb.Contains(player.accountId))
@@ -273,17 +275,6 @@ namespace ABAM_Stats.Classes
             }
 
             return IDs;
-        }
-
-        private async Task InsertValuesIntoTable(string tableName, IEnumerable<string> columnNames, IEnumerable<string> values)
-        {
-            if (values.Any())
-            {
-                SqlCommand sqlCommand = new SqlCommand();
-                sqlCommand.CommandText = $"INSERT INTO {tableName} ({string.Join(',', columnNames)}) VALUES {string.Join(',', values)}";
-                sqlCommand.Connection = sqlConnection;
-                await sqlCommand.ExecuteNonQueryAsync();
-            }
         }
     }
 }
