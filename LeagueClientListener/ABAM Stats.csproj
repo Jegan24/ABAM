@@ -1,9 +1,259 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="MatchArchive\3961979551.json" />
+    <None Remove="MatchArchive\3964294179.json" />
+    <None Remove="MatchArchive\3964298271.json" />
+    <None Remove="MatchArchive\3964298366.json" />
+    <None Remove="MatchArchive\3964298456.json" />
+    <None Remove="MatchArchive\3964298611.json" />
+    <None Remove="MatchArchive\3964298749.json" />
+    <None Remove="MatchArchive\3964545095.json" />
+    <None Remove="MatchArchive\3964545197.json" />
+    <None Remove="MatchArchive\3966817438.json" />
+    <None Remove="MatchArchive\3966817640.json" />
+    <None Remove="MatchArchive\3966817769.json" />
+    <None Remove="MatchArchive\3966817846.json" />
+    <None Remove="MatchArchive\3967095991.json" />
+    <None Remove="MatchArchive\3967096076.json" />
+    <None Remove="MatchArchive\3967096266.json" />
+    <None Remove="MatchArchive\3967096401.json" />
+    <None Remove="MatchArchive\3967096595.json" />
+    <None Remove="MatchArchive\3969401152.json" />
+    <None Remove="MatchArchive\3969401336.json" />
+    <None Remove="MatchArchive\3969431234.json" />
+    <None Remove="MatchArchive\3969550979.json" />
+    <None Remove="MatchArchive\3970192685.json" />
+    <None Remove="MatchArchive\3970192843.json" />
+    <None Remove="MatchArchive\3970487034.json" />
+    <None Remove="MatchArchive\3972960361.json" />
+    <None Remove="MatchArchive\3972960520.json" />
+    <None Remove="MatchArchive\3972960598.json" />
+    <None Remove="MatchArchive\3972960788.json" />
+    <None Remove="MatchArchive\3972960935.json" />
+    <None Remove="MatchArchive\3972961071.json" />
+    <None Remove="MatchArchive\3973157431.json" />
+    <None Remove="MatchArchive\3973157542.json" />
+    <None Remove="MatchArchive\3973157712.json" />
+    <None Remove="MatchArchive\3973158002.json" />
+    <None Remove="MatchArchive\3973158259.json" />
+    <None Remove="MatchArchive\3973158532.json" />
+    <None Remove="MatchArchive\3973158705.json" />
+    <None Remove="MatchArchive\3973158852.json" />
+    <None Remove="MatchArchive\3975576616.json" />
+    <None Remove="MatchArchive\3975579061.json" />
+    <None Remove="MatchArchive\3975579290.json" />
+    <None Remove="MatchArchive\3975921724.json" />
+    <None Remove="MatchArchive\3975921919.json" />
+    <None Remove="MatchArchive\3975922084.json" />
+    <None Remove="MatchArchive\3975972428.json" />
+    <None Remove="MatchArchive\3975972602.json" />
+    <None Remove="MatchArchive\3976119366.json" />
+    <None Remove="MatchArchive\3978406926.json" />
+    <None Remove="MatchArchive\3978407015.json" />
+    <None Remove="MatchArchive\3978407217.json" />
+    <None Remove="MatchArchive\3978407342.json" />
+    <None Remove="MatchArchive\3978407538.json" />
+    <None Remove="MatchArchive\3978407720.json" />
+    <None Remove="MatchArchive\3978407910.json" />
+    <None Remove="MatchArchive\3978413171.json" />
+    <None Remove="MatchArchive\3978622682.json" />
+    <None Remove="MatchArchive\3978622834.json" />
+    <None Remove="MatchArchive\3978622957.json" />
+    <None Remove="MatchArchive\3978623098.json" />
+    <None Remove="MatchArchive\3978623334.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="MatchArchive\3961979551.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964294179.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964298271.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964298366.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964298456.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964298611.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964298749.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964545095.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3964545197.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3966817438.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3966817640.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3966817769.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3966817846.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3967095991.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3967096076.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3967096266.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3967096401.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3967096595.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3969401152.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3969401336.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3969431234.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3969550979.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3970192685.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3970192843.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3970487034.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3972960361.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3972960520.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3972960598.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3972960788.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3972960935.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3972961071.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973157431.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973157542.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973157712.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973158002.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973158259.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973158532.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973158705.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3973158852.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975576616.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975579061.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975579290.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975921724.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975921919.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975922084.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975972428.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3975972602.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3976119366.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978406926.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978407015.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978407217.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978407342.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978407538.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978407720.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978407910.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978413171.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978622682.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978622834.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978622957.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978623098.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatchArchive\3978623334.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Configuration.ConfigurationBuilders.Environment" Version="2.0.0" />

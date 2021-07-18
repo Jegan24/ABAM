@@ -18,21 +18,25 @@ namespace ABAM_Stats.Classes
             sqlConnection = new SqlConnection(connectionString);
         }
 
-        public async Task AddMatchesToDb(IEnumerable<Match> matches)
+        public async Task AddMatchesToDb(IEnumerable<MatchInfo> matchInfos)
         {
             await sqlConnection.OpenAsync();
 
             await LoadDbMetaData();
 
-            foreach (var match in matches)
+            foreach (var matchInfo in matchInfos)
             {
+                var match = matchInfo.Match;
                 //var transaction = await sqlConnection.BeginTransactionAsync();
                 // skip games already in db and ignore non-custom games
-                if (matchIDsInDb.Contains(match.gameId) || match.queueId != 0)
+                if (   matchIDsInDb.Contains(match.gameId) 
+                    || match.queueId != 0 
+                    || string.Compare(match.gameType, "CUSTOM_GAME", StringComparison.OrdinalIgnoreCase) != 0 
+                    || string.Compare(match.gameMode, "ARAM", StringComparison.OrdinalIgnoreCase) != 0)
                 {
                     continue;
                 }
-                await AddMatchToDb(match);
+                await AddMatchToDb(matchInfo);
                 foreach (var player in match.participantIdentities.Select(p => p.player))
                 {
                     if (!accountIDsInDb.Contains(player.accountId))
@@ -74,8 +78,9 @@ namespace ABAM_Stats.Classes
             await sqlCommand.ExecuteNonQueryAsync();
         }
 
-        private async Task AddMatchToDb(Match match)
+        private async Task AddMatchToDb(MatchInfo matchInfo)
         {
+            var match = matchInfo.Match;
             SqlCommand sqlCommand = new SqlCommand();
             var date = new DateTime(1970, 1, 1).AddTicks(match.gameCreation * 10000);
             sqlCommand.CommandText =
@@ -83,6 +88,13 @@ namespace ABAM_Stats.Classes
                 $"VALUES ({match.gameId},'{date}')";
             sqlCommand.Connection = sqlConnection;
 
+            await sqlCommand.ExecuteNonQueryAsync();
+            
+            sqlCommand = new SqlCommand();
+            sqlCommand.CommandText =
+                $"INSERT INTO MatchMetaData (MatchID, DateAdded, RawJson)" +
+                $"VALUES ({match.gameId}, GETDATE(), N'{matchInfo.Json}')";
+            sqlCommand.Connection = sqlConnection;
             await sqlCommand.ExecuteNonQueryAsync();
         }
 

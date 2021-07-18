@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace ABAM_Stats.Classes.Json
 {
+    public class MatchInfo
+    {
+        public Match Match { get; set; }
+        public string Json { get; set; }
+    }
     public class Match
     {
         public long gameId { get; set; }

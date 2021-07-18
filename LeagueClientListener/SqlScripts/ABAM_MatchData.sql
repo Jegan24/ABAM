@@ -5,6 +5,7 @@ IF OBJECT_ID('MatchTeamParticipantStats')	IS NOT NULL DROP TABLE MatchTeamPartic
 IF OBJECT_ID('MatchTeamParticipants')		IS NOT NULL	DROP TABLE MatchTeamParticipants
 IF OBJECT_ID('MatchTeams')					IS NOT NULL	DROP TABLE MatchTeams
 IF OBJECT_ID('Players')						IS NOT NULL	DROP TABLE Players
+IF OBJECT_ID('MatchMetaData')				IS NOT NULL DROP TABLE MatchMetaData
 IF OBJECT_ID('Matches')						IS NOT NULL	DROP TABLE Matches
 GO
 
@@ -13,6 +14,15 @@ CREATE TABLE Matches
 	MatchID			BIGINT		NOT NULL,
 	DateOfMatch		DATETIME	NOT NULL,
 	CONSTRAINT PK_Matches PRIMARY KEY (MatchID)
+)
+
+CREATE TABLE MatchMetaData
+(	
+	DbIndex			INT				NOT NULL IDENTITY,
+	MatchID			BIGINT			NOT NULL,
+	DateAdded		DATETIME		NOT NULL,
+	RawJson			NVARCHAR(MAX)	NOT NULL,
+	CONSTRAINT PK_MatchMetaData PRIMARY KEY (DbIndex)
 )
 
 CREATE TABLE Players
@@ -119,6 +129,9 @@ CREATE TABLE MatchTeamParticipantStats
 )
 GO
 
+ALTER TABLE MatchMetaData ADD CONSTRAINT FK_Matches_MatchMetaData
+FOREIGN KEY (MatchID) REFERENCES Matches (MatchID)
+
 ALTER TABLE MatchTeams ADD CONSTRAINT FK_Matches_MatchTeams
 FOREIGN KEY (MatchID) REFERENCES Matches (MatchID)
 
@@ -190,3 +203,4 @@ SELECT * FROM MatchTeamParticipantStats
 SELECT * FROM Players
 SELECT COUNT(*), SummonerName FROM Players JOIN MatchTeamParticipants ON Players.AccountID = MatchTeamParticipants.AccountID GROUP BY SummonerName
 SELECT * FROM MatchTeamParticipantStats WHERE AccountID IN (SELECT AccountID FROM Players WHERE SummonerName = 'iPooUnicorns')
+SELECT * FROM MatchMetaData

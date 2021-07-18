@@ -14,10 +14,10 @@ namespace ABAM_Stats.Classes
     /// </summary>
     public static class MatchFinder
     {
-        public static async Task<IEnumerable<Match>> GetMatchesFromDirectory(string directory)
+        public static async Task<IEnumerable<MatchInfo>> GetMatchesFromDirectory(string directory)
         {
             var contents = new List<string>();
-            var matches = new List<Match>();
+            var matches = new List<MatchInfo>();
             var fileNames = Directory.GetFiles(directory);
             foreach (var fileName in fileNames)
             {
@@ -27,18 +27,22 @@ namespace ABAM_Stats.Classes
                     contents.Add(content);
                 }
             }
-            foreach(var content in contents)
+            foreach (var content in contents)
             {
                 try
                 {
-                    matches.Add(JsonConvert.DeserializeObject<Match>(content));
+                    matches.Add(new MatchInfo()
+                    {
+                        Match = JsonConvert.DeserializeObject<Match>(content),
+                        Json = content
+                    });
                 }
-                catch(Exception)
+                catch (Exception)
                 {
 
                 }
             }
             return matches;
-        }        
+        }
     }
 }
