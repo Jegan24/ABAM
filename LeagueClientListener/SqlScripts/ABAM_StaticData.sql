@@ -1,7 +1,12 @@
 ﻿USE ABAM_Stats
 GO
-
-IF OBJECT_ID('Champions')	IS NOT NULL DROP TABLE Champions
+IF OBJECT_ID('MatchTeamParticipantStats')	IS NOT NULL DROP TABLE MatchTeamParticipantStats
+IF OBJECT_ID('MatchTeamParticipants')		IS NOT NULL	DROP TABLE MatchTeamParticipants
+IF OBJECT_ID('MatchTeams')					IS NOT NULL	DROP TABLE MatchTeams
+IF OBJECT_ID('Players')						IS NOT NULL	DROP TABLE Players
+IF OBJECT_ID('MatchMetaData')				IS NOT NULL DROP TABLE MatchMetaData
+IF OBJECT_ID('Matches')						IS NOT NULL	DROP TABLE Matches
+IF OBJECT_ID('Champions')					IS NOT NULL DROP TABLE Champions
 GO
 CREATE TABLE Champions
 (
@@ -20,7 +25,7 @@ CREATE TABLE Items
 (
 	ItemID			INT				NOT NULL,
 	ItemName		VARCHAR(127)	NOT NULL,
-	CONSTRAINT PK_Items	PRIMARY KEY(ItemID)y
+	CONSTRAINT PK_Items	PRIMARY KEY(ItemID)
 )
 GO
 INSERT INTO Items (ItemID, ItemName) VALUES (0, 'None')

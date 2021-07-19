@@ -34,13 +34,16 @@ namespace ABAM_Stats.Classes
                     || string.Compare(match.gameType, "CUSTOM_GAME", StringComparison.OrdinalIgnoreCase) != 0 
                     || string.Compare(match.gameMode, "ARAM", StringComparison.OrdinalIgnoreCase) != 0)
                 {
+                    Console.WriteLine($"Skipping match with ID of {match.gameId}. Either it's already in the database or failed validation.");
                     continue;
                 }
+                Console.WriteLine($"Adding match with ID of {match.gameId}");
                 await AddMatchToDb(matchInfo);
                 foreach (var player in match.participantIdentities.Select(p => p.player))
                 {
                     if (!accountIDsInDb.Contains(player.accountId))
                     {
+                        Console.WriteLine($"Found new summoner: {player.summonerName}");
                         await AddPlayerToDb(player);
                         accountIDsInDb.Add(player.accountId);
                     }
