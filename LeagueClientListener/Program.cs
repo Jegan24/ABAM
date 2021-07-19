@@ -23,8 +23,22 @@ namespace ABAM_Stats
                 var dataDragonParser = new DataDragonParser(version, connectionString);
                 await dataDragonParser.ParseDataDragon();
             }
-            string directory = Path.Combine(Directory.GetCurrentDirectory(), "MatchArchive");
-            Console.Write(string.Join('\n', Directory.GetFiles(directory)));
+            
+            Console.WriteLine("Use Archive Data?");
+            response = Console.ReadLine();
+            string directory;
+            if (response.StartsWith("y", StringComparison.OrdinalIgnoreCase))
+            {
+                directory = Path.Combine(Directory.GetCurrentDirectory(), "MatchArchive");
+                Console.Write(string.Join('\n', Directory.GetFiles(directory)));
+
+            }
+            else
+            {
+                Console.WriteLine("Enter folder path:");
+                directory = Console.ReadLine();
+            }
+            
             var matches = await MatchFinder.GetMatchesFromDirectory(directory);
             if (matches.Any())
             {

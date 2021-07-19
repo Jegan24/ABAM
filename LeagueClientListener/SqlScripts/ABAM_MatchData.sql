@@ -11,8 +11,10 @@ GO
 
 CREATE TABLE Matches
 (
-	MatchID			BIGINT		NOT NULL,
-	DateOfMatch		DATETIME	NOT NULL,
+	MatchID				BIGINT		NOT NULL,
+	DateOfMatch			DATETIME	NOT NULL,
+	Duration			TIME		NOT NULL,
+	GameLengthInSeconds	INT			NOT NULL,
 	CONSTRAINT PK_Matches PRIMARY KEY (MatchID)
 )
 
@@ -196,6 +198,11 @@ ALTER TABLE MatchTeamParticipantStats ADD CONSTRAINT FK_RunePaths_MatchTeamParti
 FOREIGN KEY (SecondaryRunePathID)	REFERENCES RunePaths (RunePathID)
 GO
 
+CREATE NONCLUSTERED INDEX NCI_Matches_DateOfMatch ON Matches (DateOfMatch DESC)
+GO
+CREATE NONCLUSTERED INDEX NCI_Players_SummonerName ON Players (SummonerName ASC)
+GO
+
 SELECT * FROM Matches
 SELECT * FROM MatchTeams
 SELECT * FROM MatchTeamParticipants
@@ -204,3 +211,6 @@ SELECT * FROM Players
 SELECT COUNT(*), SummonerName FROM Players JOIN MatchTeamParticipants ON Players.AccountID = MatchTeamParticipants.AccountID GROUP BY SummonerName
 SELECT * FROM MatchTeamParticipantStats WHERE AccountID IN (SELECT AccountID FROM Players WHERE SummonerName = 'iPooUnicorns')
 SELECT * FROM MatchMetaData
+
+-- Commented out in case calendar script hasnt been executed
+-- SELECT * FROM Matches JOIN DateInfo ON CAST(Matches.DateOfMatch AS DATE) = DateInfo.Calendar_Date ORDER BY DateOfMatch DESC

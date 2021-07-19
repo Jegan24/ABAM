@@ -83,9 +83,10 @@ namespace ABAM_Stats.Classes
             var match = matchInfo.Match;
             SqlCommand sqlCommand = new SqlCommand();
             var date = new DateTime(1970, 1, 1).AddTicks(match.gameCreation * 10000);
+            var duration = TimeSpan.FromSeconds(match.gameDuration);
             sqlCommand.CommandText =
-                $"INSERT INTO Matches (MatchID, DateOfMatch) " +
-                $"VALUES ({match.gameId},'{date}')";
+                $"INSERT INTO Matches (MatchID, DateOfMatch, Duration, GameLengthInSeconds) " +
+                $"VALUES ({match.gameId},'{date}', '{duration}', {match.gameDuration})";
             sqlCommand.Connection = sqlConnection;
 
             await sqlCommand.ExecuteNonQueryAsync();

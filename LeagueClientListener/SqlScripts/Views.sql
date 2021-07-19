@@ -11,6 +11,8 @@ CREATE VIEW PlayerAverages AS
 SELECT
 	 B.SummonerName 
 	,COUNT(A.MatchID)										AS 'GameCount'
+	,CAST(CAST(AVG(CAST(CAST(
+	 Duration AS DATETIME) AS FLOAT)) AS DATETIME) AS TIME)	AS 'AverageDuration'
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
@@ -25,7 +27,6 @@ SELECT
 	,AVG(A.TotalDamageTaken * 1.0)							AS 'AverageTotalDamageTaken'
 	,AVG(A.DamageSelfMitigated * 1.0)						AS 'AverageDamageSelfMitigated'
 	,AVG(A.TotalHeal * 1.0)									AS 'AverageTotalHeal'
-	,AVG(A.TotalUnitsHealed * 1.0)							AS 'AverageTotalUnitsHealed'
 	,AVG(A.GoldEarned * 1.0)								AS 'AverageGoldEarned'
 	,AVG(A.TotalMinionsKilled * 1.0)						AS 'AverageTotalMinionsKilled'
 	,AVG(A.TurretKills * 1.0)								AS 'AverageTurretKills'
@@ -35,6 +36,8 @@ FROM
 	MatchTeamParticipantStats AS A 
 	JOIN TrackedPlayers B 
 	ON A.AccountID = B.AccountID 
+	JOIN Matches C
+	ON A.MatchID = C.MatchID
 GROUP BY 
 	B.SummonerName 
 GO
@@ -45,6 +48,7 @@ CREATE VIEW PlayerTotals AS
 SELECT
 	 B.SummonerName 
 	,COUNT(A.MatchID)								AS 'GameCount'
+	,SUM(GameLengthInSeconds)						AS 'TotalTimePlayedInSeconds'
 	,SUM(A.Kills)									AS 'TotalKills'
 	,SUM(A.Deaths)									AS 'TotalDeaths'
 	,SUM(A.Assists)									AS 'TotalAssists'
@@ -59,8 +63,7 @@ SELECT
 	,SUM(A.TotalDamageToChampions)					AS 'TotalDamageToChamps'
 	,SUM(A.TotalDamageTaken)						AS 'TotalDamageTaken'
 	,SUM(A.DamageSelfMitigated)						AS 'TotalDamageSelfMitigated'
-	,SUM(A.TotalHeal)								AS 'TotalTotalHeal'
-	,SUM(A.TotalUnitsHealed)						AS 'TotalTotalUnitsHealed'
+	,SUM(A.TotalHeal)								AS 'TotalHeal'
 	,SUM(A.GoldEarned)								AS 'TotalGoldEarned'
 	,SUM(A.TotalMinionsKilled)						AS 'TotalMinionsKilled'
 	,SUM(A.TurretKills)								AS 'TotalTurretKills'
@@ -69,7 +72,10 @@ SELECT
 FROM 
 	MatchTeamParticipantStats AS A 
 	JOIN TrackedPlayers B 
-	ON A.AccountID = B.AccountID 	
+	ON A.AccountID = B.AccountID
+	JOIN Matches C
+	ON A.MatchID = C.MatchID
+
 GROUP BY 
 	B.SummonerName 
 GO
@@ -84,6 +90,8 @@ CREATE VIEW ChampionAverages AS
 SELECT
 	 C.ChampionName 
 	,COUNT(A.MatchID)										AS 'GameCount'
+	,CAST(CAST(AVG(CAST(CAST(
+	 Duration AS DATETIME) AS FLOAT)) AS DATETIME) AS TIME)	AS 'AverageDuration'
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
@@ -98,18 +106,18 @@ SELECT
 	,AVG(A.TotalDamageTaken * 1.0)							AS 'AverageTotalDamageTaken'
 	,AVG(A.DamageSelfMitigated * 1.0)						AS 'AverageDamageSelfMitigated'
 	,AVG(A.TotalHeal * 1.0)									AS 'AverageTotalHeal'
-	,AVG(A.TotalUnitsHealed * 1.0)							AS 'AverageTotalUnitsHealed'
 	,AVG(A.GoldEarned * 1.0)								AS 'AverageGoldEarned'
 	,AVG(A.TotalMinionsKilled * 1.0)						AS 'AverageTotalMinionsKilled'
 	,AVG(A.TurretKills * 1.0)								AS 'AverageTurretKills'
 	,AVG(A.DamageDealtToTurrets * 1.0)						AS 'AverageDamageToTurrets'	
-FROM 
-	MatchTeamParticipantStats AS A 
-		JOIN MatchTeamParticipants AS B
-				JOIN Champions AS C
-				ON B.ChampionID = C.ChampionID
-		ON	A.MatchID = B.MatchID
-		AND A.ParticipantID = B.ParticipantID			
+FROM	
+	Champions AS C
+	LEFT JOIN MatchTeamParticipants AS B		
+		JOIN MatchTeamParticipantStats AS A
+			JOIN Matches D
+			ON A.MatchID = D.MatchID
+		ON A.MatchID = B.MatchID AND A.ParticipantID = B.ParticipantID
+	ON C.ChampionID = B.ChampionID
 GROUP BY 
 	C.ChampionName
 GO
@@ -119,37 +127,48 @@ GO
 CREATE VIEW ChampionTotals AS
 SELECT
 	 C.ChampionName 
-	,COUNT(A.MatchID)								AS 'GameCount'
-	,SUM(A.Kills)									AS 'TotalKills'
-	,SUM(A.Deaths)									AS 'TotalDeaths'
-	,SUM(A.Assists)									AS 'TotalAssists'
+	,COUNT(A.MatchID)									AS 'GameCount'
+	,SUM(GameLengthInSeconds)							AS 'TotalTimePlayedInSeconds'
+	,SUM(A.Kills)										AS 'TotalKills'
+	,SUM(A.Deaths)										AS 'TotalDeaths'
+	,SUM(A.Assists)										AS 'TotalAssists'
 	,(SUM(A.Kills * 1.0) + SUM(A.Assists * 1.0))
-	/ SUM(A.Deaths * 1.0)							AS 'OverallKDA'
-	,MAX(A.LargestKillSpree)						AS 'MaxKillSpree'
-	,MAX(A.LargestMultiKill)						AS 'MaxMultiKill'
-	,SUM(A.DoubleKills)								AS 'TotalDoubleKills'
-	,SUM(A.TripleKills)								AS 'TotalTripleKills'
-	,SUM(A.QuadraKills)								AS 'TotalQuadraKills'
-	,SUM(A.PentaKills)								AS 'TotalPentaKills'
-	,SUM(A.TotalDamageToChampions)					AS 'TotalDamageToChamps'
-	,SUM(A.TotalDamageTaken)						AS 'TotalDamageTaken'
-	,SUM(A.DamageSelfMitigated)						AS 'TotalDamageSelfMitigated'
-	,SUM(A.TotalHeal)								AS 'TotalTotalHeal'
-	,SUM(A.TotalUnitsHealed)						AS 'TotalTotalUnitsHealed'
-	,SUM(A.GoldEarned)								AS 'TotalGoldEarned'
-	,SUM(A.TotalMinionsKilled)						AS 'TotalMinionsKilled'
-	,SUM(A.TurretKills)								AS 'TotalTurretKills'
-	,SUM(A.DamageDealtToTurrets)					AS 'TotalDamageToTurrets'
+	/ SUM(A.Deaths * 1.0)								AS 'OverallKDA'
+	,MAX(A.LargestKillSpree)							AS 'MaxKillSpree'
+	,MAX(A.LargestMultiKill)							AS 'MaxMultiKill'
+	,SUM(A.DoubleKills)									AS 'TotalDoubleKills'
+	,SUM(A.TripleKills)									AS 'TotalTripleKills'
+	,SUM(A.QuadraKills)									AS 'TotalQuadraKills'
+	,SUM(A.PentaKills)									AS 'TotalPentaKills'
+	,SUM(A.TotalDamageToChampions)						AS 'TotalDamageToChamps'
+	,SUM(A.TotalDamageTaken)							AS 'TotalDamageTaken'
+	,SUM(A.DamageSelfMitigated)							AS 'TotalDamageSelfMitigated'
+	,SUM(A.TotalHeal)									AS 'TotalHeal'
+	,SUM(A.GoldEarned)									AS 'TotalGoldEarned'
+	,SUM(A.TotalMinionsKilled)							AS 'TotalMinionsKilled'
+	,SUM(A.TurretKills)									AS 'TotalTurretKills'
+	,SUM(A.DamageDealtToTurrets)						AS 'TotalDamageToTurrets'
 FROM	
-	MatchTeamParticipantStats AS A 
-		JOIN MatchTeamParticipants AS B
-				JOIN Champions AS C
-				ON B.ChampionID = C.ChampionID
-		ON	A.MatchID = B.MatchID
-		AND A.ParticipantID = B.ParticipantID			
+	Champions AS C
+	LEFT JOIN MatchTeamParticipants AS B		
+		JOIN MatchTeamParticipantStats AS A
+			JOIN Matches D
+			ON A.MatchID = D.MatchID
+		ON A.MatchID = B.MatchID AND A.ParticipantID = B.ParticipantID
+	ON C.ChampionID = B.ChampionID
 GROUP BY 
 	C.ChampionName
 GO
 
+SELECT * FROM PlayerAverages
+SELECT * FROM PlayerTotals
 SELECT * FROM ChampionAverages
 SELECT * FROM ChampionTotals
+
+SELECT DISTINCT
+	ChampionName
+FROM 
+	Champions
+	LEFT JOIN MatchTeamParticipants
+	ON Champions.ChampionID = MatchTeamParticipants.ChampionID
+	
