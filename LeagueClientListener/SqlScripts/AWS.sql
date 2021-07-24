@@ -948,7 +948,7 @@ SELECT
 	,AVG(A.DoubleKills	* 1.0)								AS 'AverageDoubleKills'
 	,AVG(A.TripleKills	* 1.0)								AS 'AverageTripleKills'
 	,AVG(A.QuadraKills	* 1.0)								AS 'AverageQuadraKills'
-	,AVG(A.PentaKills	* 5.0)								AS 'AveragePentaKills'
+	,AVG(A.PentaKills	* 1.0)								AS 'AveragePentaKills'
 	,AVG(A.DoubleKills	* 2.0)								
 	+AVG(A.TripleKills	* 3.0)								
 	+AVG(A.QuadraKills	* 4.0)								
