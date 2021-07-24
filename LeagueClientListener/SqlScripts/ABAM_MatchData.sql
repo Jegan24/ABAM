@@ -29,10 +29,11 @@ CREATE TABLE MatchMetaData
 
 CREATE TABLE Players
 (
-	AccountID			BIGINT		NOT NULL,
-	SummonerName		VARCHAR(63)	NOT NULL,
-	SummonerID			INT			NOT NULL,
-	TrackStats			BIT			NOT NULL,
+	AccountID			BIGINT			NOT NULL,
+	SummonerName		NVARCHAR(63)	NOT NULL,
+	SummonerID			BIGINT			NOT NULL,
+	TrackStats			BIT				NOT NULL,
+	LastUpdated			DATETIME		NOT NULL,
 	CONSTRAINT PK_Players PRIMARY KEY (AccountID)
 )
 
@@ -52,7 +53,7 @@ CREATE TABLE MatchTeams
 CREATE TABLE MatchTeamParticipants
 (
 	MatchID				BIGINT		NOT NULL,
-	TeamID				INT			NOT NULL,
+	TeamID				INT			NOT NULL, 
 	ParticipantID		INT			NOT NULL,
 	AccountID			BIGINT		NOT NULL,	
 	ChampionID			INT			NOT NULL,
@@ -62,71 +63,77 @@ CREATE TABLE MatchTeamParticipants
 )
 
 CREATE TABLE MatchTeamParticipantStats
-(
-	MatchID							BIGINT		NOT NULL,
-	TeamID							INT			NOT NULL,
-	ParticipantID					INT			NOT NULL,
-	AccountID						BIGINT		NOT NULL,
-	DbIndex							INT			NOT NULL IDENTITY,
-	Win								BIT			NOT NULL,
-	Item1ID							INT			NOT NULL,
-	Item2ID							INT			NOT NULL,
-	Item3ID							INT			NOT NULL,
-	Item4ID							INT			NOT NULL,
-	Item5ID							INT			NOT NULL,
-	Item6ID							INT			NOT NULL,
-	Kills							INT			NOT NULL,
-	Deaths							INT			NOT NULL,
-	Assists							INT			NOT NULL,
-	LargestKillSpree				INT			NOT NULL,
-	LargestMultiKill				INT			NOT NULL,
-	KillingSprees					INT			NOT NULL,
-	LongestTimeSpentLiving			INT			NOT NULL,
-	DoubleKills						INT			NOT NULL,
-	TripleKills						INT			NOT NULL,
-	QuadraKills						INT			NOT NULL,
-	PentaKills						INT			NOT NULL,
-	TotalDamageDealt				INT			NOT NULL,
-	PhysicalDamageDealt				INT			NOT NULL,
-	MagicDamageDealt				INT			NOT NULL,
-	TrueDamageDealt					INT			NOT	NULL,
-	LargestCriticalStrike			INT			NOT NULL,
-	TotalDamageToChampions			INT			NOT NULL,
-	PhysicalDamageToChampions		INT			NOT NULL,
-	MagicDamageToChampions			INT			NOT NULL,
-	TrueDamageToChampions			INT			NOT NULL,
-	TotalHeal						INT			NOT NULL,
-	TotalUnitsHealed				INT			NOT NULL,
-	DamageSelfMitigated				INT			NOT NULL,
-	DamageDealtToObjectives			INT			NOT NULL,
-	DamageDealtToTurrets			INT			NOT NULL,
-	TimeCCingOthers					INT			NOT NULL,
-	TotalDamageTaken				INT			NOT NULL,
-	PhysicalDamageTaken				INT			NOT NULL,
-	MagicDamageTaken				INT			NOT NULL,
-	TrueDamageTaken					INT			NOT NULL,
-	GoldEarned						INT			NOT NULL,
-	GoldSpent						INT			NOT NULL,
-	TurretKills						INT			NOT NULL,
-	InhibitorKills					INT			NOT	NULL,
-	TotalMinionsKilled				INT			NOT NULL,
-	TotalTimeCrowdControlDealt		INT			NOT NULL,
-	ChampLevel						INT			NOT NULL,
-	FirstBloodKill					BIT			NOT NULL,
-	FirstBloodAssist				BIT			NOT NULL,
-	FirstTowerKill					BIT			NOT NULL,
-	FirstTowerAssist				BIT			NOT NULL,
-	FirstInihibitorKill				BIT			NOT NULL,
-	FirstInhibitorAssist			BIT			NOT NULL,
-	KeystoneID						INT			NOT NULL,
-	PrimaryRune1ID					INT			NOT NULL,
-	PrimaryRune2ID					INT			NOT NULL,
-	PrimaryRune3ID					INT			NOT NULL,
-	SecondaryRune1ID				INT			NOT NULL,
-	SecondaryRune2ID				INT			NOT NULL,
-	PrimaryRunePathID				INT			NOT NULL,
-	SecondaryRunePathID				INT			NOT NULL,
-	MetaWin							BIT			NULL,
+	(
+	MatchID							BIGINT			NOT NULL,
+	TeamID							INT				NOT NULL,
+	ParticipantID					INT				NOT NULL,
+	AccountID						BIGINT			NOT NULL,
+	DbIndex							INT				NOT NULL IDENTITY,
+	Win								BIT				NOT NULL,
+	Item1ID							INT				NOT NULL,
+	Item2ID							INT				NOT NULL,
+	Item3ID							INT				NOT NULL,
+	Item4ID							INT				NOT NULL,
+	Item5ID							INT				NOT NULL,
+	Item6ID							INT				NOT NULL,
+	Kills							INT				NOT NULL,
+	Deaths							INT				NOT NULL,
+	Assists							INT				NOT NULL,
+	LargestKillSpree				INT				NOT NULL,
+	LargestMultiKill				INT				NOT NULL,
+	KillingSprees					INT				NOT NULL,
+	LongestTimeSpentLiving			INT				NOT NULL,
+	DoubleKills						INT				NOT NULL,
+	TripleKills						INT				NOT NULL,
+	QuadraKills						INT				NOT NULL,
+	PentaKills						INT				NOT NULL,
+	TotalDamageDealt				INT				NOT NULL,
+	PhysicalDamageDealt				INT				NOT NULL,
+	MagicDamageDealt				INT				NOT NULL,
+	TrueDamageDealt					INT				NOT	NULL,
+	LargestCriticalStrike			INT				NOT NULL,
+	TotalDamageToChampions			INT				NOT NULL,
+	PhysicalDamageToChampions		INT				NOT NULL,
+	MagicDamageToChampions			INT				NOT NULL,
+	TrueDamageToChampions			INT				NOT NULL,
+	TotalHeal						INT				NOT NULL,
+	TotalUnitsHealed				INT				NOT NULL,
+	DamageSelfMitigated				INT				NOT NULL,
+	DamageDealtToObjectives			INT				NOT NULL,
+	DamageDealtToTurrets			INT				NOT NULL,
+	TimeCCingOthers					INT				NOT NULL,
+	TotalDamageTaken				INT				NOT NULL,
+	PhysicalDamageTaken				INT				NOT NULL,
+	MagicDamageTaken				INT				NOT NULL,
+	TrueDamageTaken					INT				NOT NULL,
+	GoldEarned						INT				NOT NULL,
+	GoldSpent						INT				NOT NULL,
+	TurretKills						INT				NOT NULL,
+	InhibitorKills					INT				NOT	NULL,
+	TotalMinionsKilled				INT				NOT NULL,
+	TotalTimeCrowdControlDealt		INT				NOT NULL,
+	ChampLevel						INT				NOT NULL,
+	FirstBloodKill					BIT				NOT NULL,
+	FirstBloodAssist				BIT				NOT NULL,
+	FirstTowerKill					BIT				NOT NULL,
+	FirstTowerAssist				BIT				NOT NULL,
+	FirstInihibitorKill				BIT				NOT NULL,
+	FirstInhibitorAssist			BIT				NOT NULL,
+	KeystoneID						INT				NOT NULL,
+	KeystoneValues					NVARCHAR(1000)	NOT NULL,
+	PrimaryRune1ID					INT				NOT NULL,
+	PrimaryRune1Values				NVARCHAR(1000)	NOT NULL,
+	PrimaryRune2ID					INT				NOT NULL,
+	PrimaryRune2Values				NVARCHAR(1000)	NOT NULL,
+	PrimaryRune3ID					INT				NOT NULL,
+	PrimaryRune3Values				NVARCHAR(1000)	NOT NULL,
+	SecondaryRune1ID				INT				NOT NULL,
+	SecondaryRune1Values			NVARCHAR(1000)	NOT NULL,
+	SecondaryRune2ID				INT				NOT NULL,
+	SecondaryRune2Values			NVARCHAR(1000)	NOT NULL,
+	PrimaryRunePathID				INT				NOT NULL,
+	SecondaryRunePathID				INT				NOT NULL,
+	MetaWin							BIT				NULL,
 	CONSTRAINT PK_MatchTeamParticipantStats PRIMARY KEY (MatchID, TeamID, ParticipantID, AccountID, DbIndex)
 )
 GO
@@ -214,3 +221,20 @@ SELECT * FROM MatchMetaData
 
 -- Commented out in case calendar script hasnt been executed
 -- SELECT * FROM Matches JOIN DateInfo ON CAST(Matches.DateOfMatch AS DATE) = DateInfo.Calendar_Date ORDER BY DateOfMatch DESC
+
+SELECT
+	RuneName,
+	RuneID,
+	PrimaryRune3Values
+FROM
+	MatchTeamParticipantStats AS A
+	JOIN RunePathRunes AS B ON A.PrimaryRune3ID = B.RuneID
+
+
+SELECT
+	*
+FROM
+	MatchTeamParticipantStats 
+WHERE
+	PrimaryRune3ID = 8135 OR
+	SecondaryRune2ID = 8135

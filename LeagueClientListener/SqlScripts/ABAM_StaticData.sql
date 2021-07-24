@@ -10,8 +10,9 @@ IF OBJECT_ID('Champions')					IS NOT NULL DROP TABLE Champions
 GO
 CREATE TABLE Champions
 (
-	ChampionID		INT			NOT NULL,
+	ChampionID		INT				NOT NULL,
 	ChampionName	VARCHAR(127)	NOT NULL,
+	RawJson			NVARCHAR(MAX)	NOT NULL,
 	CONSTRAINT PK_Champions PRIMARY KEY(ChampionID)
 )
 GO
@@ -25,19 +26,21 @@ CREATE TABLE Items
 (
 	ItemID			INT				NOT NULL,
 	ItemName		VARCHAR(127)	NOT NULL,
+	RawJson			NVARCHAR(MAX)	NOT NULL,
 	CONSTRAINT PK_Items	PRIMARY KEY(ItemID)
 )
 GO
-INSERT INTO Items (ItemID, ItemName) VALUES (0, 'None')
+INSERT INTO Items (ItemID, ItemName, RawJson) VALUES (0, 'None', N'{}')
 GO
 IF OBJECT_ID('RunePathRunes')		IS NOT NULL DROP TABLE RunePathRunes
 GO
-IF OBJECT_ID('RunePaths')	IS NOT NULL DROP TABLE RunePaths
+IF OBJECT_ID('RunePaths')			IS NOT NULL DROP TABLE RunePaths
 GO
 CREATE TABLE RunePaths
 (
 	RunePathID		INT				NOT NULL,
 	RunePathName	VARCHAR(127)	NOT NULL,
+	RawJson			NVARCHAR(MAX)	NOT NULL,
 	CONSTRAINT PK_RunePaths PRIMARY KEY (RunePathID)
 )
 GO
@@ -47,6 +50,7 @@ CREATE TABLE RunePathRunes
 	RunePathID		INT				NOT NULL,
 	RuneID			INT				NOT NULL,
 	RuneName		VARCHAR(127)	NOT NULL,	
+	RawJson			NVARCHAR(MAX)	NOT NULL,
 	CONSTRAINT PK_RunePathRunes PRIMARY KEY (RuneID)
 )
 GO
@@ -61,6 +65,7 @@ CREATE TABLE SummonerSpells
 (
 	SummonerSpellID		INT				NOT NULL,
 	SummonerSpellName	VARCHAR(127)	NOT NULL,
+	RawJson				NVARCHAR(MAX)	NOT NULL,
 	CONSTRAINT PK_SummonerSpells PRIMARY KEY (SummonerSpellID)
 )
 GO

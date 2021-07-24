@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /RiotApiArchive.sql
 /LeagueClientListener/appsettings.json
+/LeagueClientListener/app.settings
+/LeagueClientListener/app.Designer.cs

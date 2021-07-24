@@ -23,6 +23,10 @@ SELECT
 	,AVG(A.TripleKills * 1.0)								AS 'AverageTripleKills'
 	,AVG(A.QuadraKills * 1.0)								AS 'AverageQuadraKills'
 	,AVG(A.PentaKills * 1.0)								AS 'AveragePentaKills'
+	,AVG(A.DoubleKills	* 2.0)								
+	+AVG(A.TripleKills	* 3.0)								
+	+AVG(A.QuadraKills	* 4.0)								
+	+AVG(A.PentaKills	* 5.0)								AS 'AverageMultiKillScore'
 	,AVG(A.TotalDamageToChampions * 1.0)					AS 'AverageDamageToChamps'
 	,AVG(A.TotalDamageTaken * 1.0)							AS 'AverageTotalDamageTaken'
 	,AVG(A.DamageSelfMitigated * 1.0)						AS 'AverageDamageSelfMitigated'
@@ -60,6 +64,10 @@ SELECT
 	,SUM(A.TripleKills)								AS 'TotalTripleKills'
 	,SUM(A.QuadraKills)								AS 'TotalQuadraKills'
 	,SUM(A.PentaKills)								AS 'TotalPentaKills'
+	,SUM(A.PentaKills)	* 5 
+	+SUM(A.QuadraKills)	* 4
+	+SUM(A.TripleKills)	* 3
+	+SUM(A.DoubleKills)	* 2								AS 'MultiKillScore'
 	,SUM(A.TotalDamageToChampions)					AS 'TotalDamageToChamps'
 	,SUM(A.TotalDamageTaken)						AS 'TotalDamageTaken'
 	,SUM(A.DamageSelfMitigated)						AS 'TotalDamageSelfMitigated'
@@ -102,6 +110,10 @@ SELECT
 	,AVG(A.TripleKills * 1.0)								AS 'AverageTripleKills'
 	,AVG(A.QuadraKills * 1.0)								AS 'AverageQuadraKills'
 	,AVG(A.PentaKills * 1.0)								AS 'AveragePentaKills'
+	,AVG(A.DoubleKills	* 2.0)								
+	+AVG(A.TripleKills	* 3.0)								
+	+AVG(A.QuadraKills	* 4.0)								
+	+AVG(A.PentaKills	* 5.0)								AS 'AverageMultiKillScore'
 	,AVG(A.TotalDamageToChampions * 1.0)					AS 'AverageDamageToChamps'
 	,AVG(A.TotalDamageTaken * 1.0)							AS 'AverageTotalDamageTaken'
 	,AVG(A.DamageSelfMitigated * 1.0)						AS 'AverageDamageSelfMitigated'
@@ -140,6 +152,10 @@ SELECT
 	,SUM(A.TripleKills)									AS 'TotalTripleKills'
 	,SUM(A.QuadraKills)									AS 'TotalQuadraKills'
 	,SUM(A.PentaKills)									AS 'TotalPentaKills'
+	,SUM(A.PentaKills)	* 5 
+	+SUM(A.QuadraKills)	* 4
+	+SUM(A.TripleKills)	* 3
+	+SUM(A.DoubleKills)	* 2								AS 'MultiKillScore'
 	,SUM(A.TotalDamageToChampions)						AS 'TotalDamageToChamps'
 	,SUM(A.TotalDamageTaken)							AS 'TotalDamageTaken'
 	,SUM(A.DamageSelfMitigated)							AS 'TotalDamageSelfMitigated'
@@ -175,7 +191,7 @@ FROM
 
 IF OBJECT_ID('TeamTotals') IS NOT NULL DROP VIEW TeamTotals
 GO
-CREATE VIEW TotalMinionsKilledByTeam AS	
+CREATE VIEW TeamTotals AS	
 SELECT
 	 A.TeamID
 	,A.MatchID
@@ -209,10 +225,14 @@ SELECT
 	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/ A.Deaths * 1.0)	AS 'AverageKDA'
 	,AVG(A.LargestKillSpree * 1.0)							AS 'AverageLargestKillSpree'
 	,AVG(A.LargestMultiKill * 1.0)							AS 'AverageLargestMultiKill'
-	,AVG(A.DoubleKills * 1.0)								AS 'AverageDoubleKills'
-	,AVG(A.TripleKills * 1.0)								AS 'AverageTripleKills'
-	,AVG(A.QuadraKills * 1.0)								AS 'AverageQuadraKills'
-	,AVG(A.PentaKills * 1.0)								AS 'AveragePentaKills'
+	,AVG(A.DoubleKills	* 1.0)								AS 'AverageDoubleKills'
+	,AVG(A.TripleKills	* 1.0)								AS 'AverageTripleKills'
+	,AVG(A.QuadraKills	* 1.0)								AS 'AverageQuadraKills'
+	,AVG(A.PentaKills	* 5.0)								AS 'AveragePentaKills'
+	,AVG(A.DoubleKills	* 2.0)								
+	+AVG(A.TripleKills	* 3.0)								
+	+AVG(A.QuadraKills	* 4.0)								
+	+AVG(A.PentaKills	* 5.0)								AS 'AverageMultiKillScore'
 	,AVG(A.TotalDamageToChampions * 1.0)					AS 'AverageDamageToChamps'
 	,AVG((A.TotalDamageToChampions * 1.0)
 		/(D.GameLengthInSeconds * 1.0))						AS 'AverageDamagePerSecond'
@@ -262,7 +282,14 @@ SELECT
 	,SUM(A.TripleKills)								AS 'TotalTripleKills'
 	,SUM(A.QuadraKills)								AS 'TotalQuadraKills'
 	,SUM(A.PentaKills)								AS 'TotalPentaKills'
+	,SUM(A.PentaKills)	* 5 
+	+SUM(A.QuadraKills)	* 4
+	+SUM(A.TripleKills)	* 3
+	+SUM(A.DoubleKills)	* 2							AS 'MultiKillScore'
 	,SUM(A.TotalDamageToChampions)					AS 'TotalDamageToChamps'
+	,SUM(A.PhysicalDamageToChampions)				AS 'TotalPhysicalDamageToChamps'
+	,SUM(A.MagicDamageToChampions)					AS 'TotalMagicDamageToChamps'
+	,SUM(A.TrueDamageToChampions)					AS 'TotalTrueDamageToChamps'
 	,SUM(A.TotalDamageTaken)						AS 'TotalDamageTaken'
 	,SUM(A.DamageSelfMitigated)						AS 'TotalDamageSelfMitigated'
 	,SUM(A.TotalHeal)								AS 'TotalHeal'
@@ -288,9 +315,8 @@ FROM
 GROUP BY 
 	F.SummonerName, C.ChampionName
 GO
-SELECT * FROM PlayerAveragesByChampion ORDER BY AverageDamagePerSecond DESC
-SELECT * FROM PlayerTotalsByChampion WHERE ChampionName = 'Skarner' ORDER BY ChampionName, OverallKDA DESC
-
+SELECT * FROM PlayerAveragesByChampion ORDER BY AverageMultiKillScore DESC
+SELECT * FROM PlayerTotalsByChampion  ORDER BY MultiKillScore DESC
 
 
 SELECT 
@@ -316,3 +342,21 @@ GROUP BY
 	TotalMatches
 ORDER BY
 	COALESCE(COUNT(B.ChampionID),0) DESC
+
+
+
+SELECT * FROM PlayerTotalsByChampion ORDER BY TotalPentaKills DESC, TotalQuadraKills DESC, TotalTripleKills DESC, TotalDoubleKills DESC, TotalKills DESC
+
+SELECT * FROM PlayerAverages WHERE GameCount > 10 ORDER BY AverageMultiKillScore DESC
+
+SELECT
+	SummonerName,
+	GameCount,
+	(TotalDamageToChamps * 1.0) / (TotalKills * 1.0) AS 'AvgDmgPerKill',
+	(TotalDamageToChamps * 1.0) / (GameCount * 1.0)	 AS 'AvgDmgPerGame'
+FROM
+	PlayerTotals
+WHERE 
+	GameCount > 10
+ORDER BY
+	(TotalDamageToChamps * 1.0) / (TotalKills * 1.0) 

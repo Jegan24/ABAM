@@ -1,4 +1,5 @@
-﻿using RiotSharp.Endpoints.StaticDataEndpoint;
+﻿using Newtonsoft.Json;
+using RiotSharp.Endpoints.StaticDataEndpoint;
 using RiotSharp.Endpoints.StaticDataEndpoint.Champion;
 using RiotSharp.Endpoints.StaticDataEndpoint.Item;
 using RiotSharp.Endpoints.StaticDataEndpoint.ReforgedRune;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ABAM_Stats.Classes
@@ -63,12 +65,38 @@ namespace ABAM_Stats.Classes
             var existingIDs = await GetIDsInDb("Champions", "ChampionID");
             var newChamps = champs.Values.Where(champ => !existingIDs.Contains(champ.Id));
 
-            IEnumerable<string> columnNames = new string[] { "ChampionID", "ChampionName" };
-            var values = newChamps.Select(champ => $"({champ.Id},'{champ.Name.Replace("'", "''")}')");
+            IEnumerable<string> columnNames = new string[] { "ChampionID", "ChampionName", "RawJson" };
+            var values = newChamps.Select(champ => $"({champ.Id},'{champ.Name.Replace("'", "''")}', N'" +
+            $"{Regex.Escape(JsonConvert.SerializeObject(champ))}')");
 
             Console.WriteLine($"\nFound {newChamps.Count()} new champions:\n{string.Join('\n', newChamps.Select(champ => champ.Name))}");
+            string sqlText = $"INSERT INTO Champions ({string.Join(',', columnNames)}) VALUES ({string.Join(',', columnNames.Select(columnName => "@" + columnName))})";
 
-            await InsertValuesIntoTable("Champions", columnNames, values);
+            foreach (var champ in newChamps)
+            {
+                SqlCommand sqlCommand = new SqlCommand(sqlText, sqlConnection);
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.VarChar,
+                    Value = champ.Name,
+                    ParameterName = "@ChampionName"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.Int,
+                    Value = champ.Id,
+                    ParameterName = "@ChampionID"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = JsonConvert.SerializeObject(champ),
+                    ParameterName = "@RawJson"
+                });
+                await sqlCommand.ExecuteNonQueryAsync();
+            }
+
+            //await InsertValuesIntoTable("Champions", columnNames, values);
         }
 
         private async Task AddItemsToDb(Dictionary<int, ItemStatic> items)
@@ -76,12 +104,37 @@ namespace ABAM_Stats.Classes
             var existingIDs = await GetIDsInDb("Items", "ItemID");
             var newItems = items.Values.Where(item => !existingIDs.Contains(item.Id));
 
-            IEnumerable<string> columnNames = new string[] { "ItemID", "ItemName" };
-            var values = newItems.Select(item => $"({item.Id},'{item.Name.Replace("'", "''")}')");
+            IEnumerable<string> columnNames = new string[] { "ItemID", "ItemName", "RawJson" };
+            var values = newItems.Select(item => $"({item.Id},'{item.Name.Replace("'", "''")}', N'" +
+            $"{Regex.Escape(JsonConvert.SerializeObject(item))}')");
 
             Console.WriteLine($"\nFound {newItems.Count()} new items:\n{string.Join('\n', newItems.Select(item => item.Name))}");
+            string sqlText = $"INSERT INTO Items ({string.Join(',', columnNames)}) VALUES ({string.Join(',', columnNames.Select(columnName => "@" + columnName))})";
 
-            await InsertValuesIntoTable("Items", columnNames, values);
+            foreach (var item in newItems)
+            {
+                SqlCommand sqlCommand = new SqlCommand(sqlText, sqlConnection);
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.VarChar,
+                    Value = item.Name,
+                    ParameterName = "@ItemName"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.Int,
+                    Value = item.Id,
+                    ParameterName = "@ItemID"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = JsonConvert.SerializeObject(item),
+                    ParameterName = "@RawJson"
+                });
+                await sqlCommand.ExecuteNonQueryAsync();
+            }
+            //await InsertValuesIntoTable("Items", columnNames, values);
         }
 
         private async Task AddRunesToDb(List<ReforgedRunePathStatic> runePaths)
@@ -95,27 +148,86 @@ namespace ABAM_Stats.Classes
                 }
             }
             #region Rune Paths (yeah this should be its own method but w/e)
-            IEnumerable<string> runePathColumnNames = new string[] { "RunePathID", "RunePathName" };
+            IEnumerable<string> runePathColumnNames = new string[] { "RunePathID", "RunePathName", "RawJson" };
             var existingRunePathIDs = await GetIDsInDb("RunePaths", "RunePathID");
 
             var newRunePaths = runePaths.Where(runePath => !existingRunePathIDs.Contains(runePath.Id));
-            var runePathValues = newRunePaths.Select(runePath => $"({runePath.Id},'{runePath.Name.Replace("'", "''")}')");
+            var runePathValues = newRunePaths.Select(runePath => $"({runePath.Id},'{runePath.Name.Replace("'", "''")}', N'" +
+            $"{Regex.Escape(JsonConvert.SerializeObject(runePath))}')");
 
             Console.WriteLine($"\nFound {newRunePaths.Count()} new rune paths:\n{string.Join('\n', newRunePaths.Select(runePath => runePath.Name))}");
+            string sqlText = $"INSERT INTO RunePaths ({string.Join(',', runePathColumnNames)}) VALUES ({string.Join(',', runePathColumnNames.Select(columnName => "@" + columnName))})";
 
-            await InsertValuesIntoTable("RunePaths", runePathColumnNames, runePathValues);
+            foreach (var runePath in newRunePaths)
+            {
+                SqlCommand sqlCommand = new SqlCommand(sqlText, sqlConnection);
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.VarChar,
+                    Value = runePath.Name,
+                    ParameterName = "@RunePathName"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.Int,
+                    Value = runePath.Id,
+                    ParameterName = "@RunePathID"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = JsonConvert.SerializeObject(runePath),
+                    ParameterName = "@RawJson"
+                });
+                await sqlCommand.ExecuteNonQueryAsync();
+            }
+            //await InsertValuesIntoTable("RunePaths", runePathColumnNames, runePathValues);
             #endregion
 
             #region Runes (same^)
-            IEnumerable<string> runePathRunesColumnNames = new string[] { "RunePathID", "RuneID", "RuneName" };
+            IEnumerable<string> runePathRunesColumnNames = new string[] { "RunePathID", "RuneID", "RuneName", "RawJson" };
             var existingRuneIDs = await GetIDsInDb("RunePathRunes", "RuneID");
 
             var newRunes = runes.Where(rune => !existingRuneIDs.Contains(rune.Item2.Id));
-            var runeValues = newRunes.Select(rune => $"({rune.Item1},{rune.Item2.Id},'{rune.Item2.Name.Replace("'", "''")}')");
+            var runeValues = newRunes.Select(rune => $"({rune.Item1},{rune.Item2.Id},'{rune.Item2.Name.Replace("'", "''")}'," +
+            $"N'{Regex.Escape(JsonConvert.SerializeObject(rune))}')");
 
             Console.WriteLine($"\nFound {newRunes.Count()} new runes:\n{string.Join('\n', newRunes.Select(rune => rune.Item2.Name))}");
 
-            await InsertValuesIntoTable("RunePathRunes", runePathRunesColumnNames, runeValues);
+            string sqlText2 = $"INSERT INTO RunePathRunes ({string.Join(',', runePathRunesColumnNames)}) VALUES ({string.Join(',', runePathRunesColumnNames.Select(columnName => "@" + columnName))})";
+
+            foreach (var runeTuple in newRunes)
+            {
+                var rune = runeTuple.Item2;
+                SqlCommand sqlCommand = new SqlCommand(sqlText2, sqlConnection);
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.VarChar,
+                    Value = rune.Name,
+                    ParameterName = "@RuneName"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.Int,
+                    Value = runeTuple.Item1,
+                    ParameterName = "@RunePathID"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.Int,
+                    Value = rune.Id,
+                    ParameterName = "@RuneID"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = JsonConvert.SerializeObject(rune),
+                    ParameterName = "@RawJson"
+                });
+                await sqlCommand.ExecuteNonQueryAsync();
+            }
+
+            //await InsertValuesIntoTable("RunePathRunes", runePathRunesColumnNames, runeValues);
             #endregion
         }
 
@@ -124,12 +236,50 @@ namespace ABAM_Stats.Classes
             var existingIDs = await GetIDsInDb("SummonerSpells", "SummonerSpellID");
             var newSummonerSpells = summonerSpells.Values.Where(v => !existingIDs.Contains(v.Id));
 
-            IEnumerable<string> columnNames = new string[] { "SummonerSpellID", "SummonerSpellName" };
-            var values = newSummonerSpells.Select(v => $"({v.Id},'{v.Name.Replace("'", "''")}')");
+            IEnumerable<string> columnNames = new string[] { "SummonerSpellID", "SummonerSpellName", "RawJson" };
+
+            // Sanitize the object because SQL doesn't play nice with it
+            foreach (var summonerSpell in newSummonerSpells)
+            {
+                summonerSpell.Description = summonerSpell.SanitizedDescription;
+                summonerSpell.Tooltip = summonerSpell.SanitizedTooltip;
+                summonerSpell.SanitizedDescription = null;
+                summonerSpell.SanitizedTooltip = null;
+                summonerSpell.Modes = null;
+                summonerSpell.Vars = null;
+            }
+            var values = newSummonerSpells.Select(summonerSpell => $"({summonerSpell.Id},'{summonerSpell.Name.Replace("'", "''")},N'" +
+            $"{Regex.Escape(JsonConvert.SerializeObject(summonerSpell))}')");
 
             Console.WriteLine($"\nFound {newSummonerSpells.Count()} new summoner spells:\n{string.Join('\n', newSummonerSpells.Select(summonerSpell => summonerSpell.Name))}");
 
-            await InsertValuesIntoTable("SummonerSpells", columnNames, values);
+            string sqlText = $"INSERT INTO SummonerSpells ({string.Join(',', columnNames)}) VALUES ({string.Join(',', columnNames.Select(columnName => "@" + columnName))})";
+
+            foreach(var summonerSpell in newSummonerSpells)
+            {
+                SqlCommand sqlCommand = new SqlCommand(sqlText, sqlConnection);
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.VarChar,
+                    Value = summonerSpell.Name,
+                    ParameterName = "@SummonerSpellName"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.Int,
+                    Value = summonerSpell.Id,
+                    ParameterName = "@SummonerSpellID"
+                });
+                sqlCommand.Parameters.Add(new SqlParameter()
+                {
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = JsonConvert.SerializeObject(summonerSpell),
+                    ParameterName = "@RawJson"
+                });
+                await sqlCommand.ExecuteNonQueryAsync();
+            }
+
+            //await InsertValuesIntoTable("SummonerSpells", columnNames, values);
         }
 
         private async Task<IEnumerable<int>> GetIDsInDb(string tableName, string columnName)
@@ -147,7 +297,7 @@ namespace ABAM_Stats.Classes
 
             return IDs;
         }
-
+        [Obsolete("I cant figure out how to get SQL to play nicely with serialized Json without the use of SqlParameter")]
         private async Task InsertValuesIntoTable(string tableName, IEnumerable<string> columnNames, IEnumerable<string> values)
         {
             if (values.Any())

@@ -37,9 +37,9 @@ namespace ABAM_Stats.Classes
                         Json = content
                     });
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
+                    Console.WriteLine(ex.Message);
                 }
             }
             return matches;

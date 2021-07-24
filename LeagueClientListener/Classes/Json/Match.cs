@@ -230,7 +230,7 @@ namespace ABAM_Stats.Classes.Json
         public string platformId { get; set; }
         public long accountId { get; set; }
         public string summonerName { get; set; }
-        public int summonerId { get; set; }
+        public long summonerId { get; set; }
         public string currentPlatformId { get; set; }
         public long currentAccountId { get; set; }
         public string matchHistoryUri { get; set; }

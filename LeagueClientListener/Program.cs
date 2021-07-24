@@ -1,7 +1,11 @@
 ﻿using ABAM_Stats.Classes;
 using ABAM_Stats.Classes.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,11 +15,23 @@ using System.Threading.Tasks;
 namespace ABAM_Stats
 {
     class Program
-    {
-        // JUST USE CONFIGURATION BUILDER ITS EASY 8======================D
-        private static string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ABAM_Stats;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=True;";
+    {        
+        private static string connectionString;
         static async Task Main(string[] args)
         {
+            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            Console.WriteLine("Use AWS DB?");
+            var response = Console.ReadLine();
+            if (response.StartsWith("y", StringComparison.OrdinalIgnoreCase))
+            {
+                configuration.Providers.First().TryGet("awsDb", out connectionString);
+
+            }
+            else
+            {
+                configuration.Providers.First().TryGet("localDb", out connectionString);
+
+            }
 
             string uniqueTitle = Guid.NewGuid().ToString();
             Console.Title = uniqueTitle;
@@ -26,7 +42,7 @@ namespace ABAM_Stats
             Console.Title = "ABAM Data";
 
             Console.WriteLine("Update Static Data?");
-            var response = Console.ReadLine();
+            response = Console.ReadLine();
             if (response.StartsWith("y", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine("Enter version number");
