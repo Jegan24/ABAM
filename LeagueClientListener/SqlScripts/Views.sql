@@ -16,7 +16,12 @@ SELECT
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
-	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/ A.Deaths * 1.0)	AS 'AverageKDA'
+	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/
+		CASE
+			WHEN A.Deaths = 0
+			THEN 1
+			ELSE A.Deaths 
+		END * 1.0)	AS 'AverageKDA'
 	,AVG(A.LargestKillSpree * 1.0)							AS 'AverageLargestKillSpree'
 	,AVG(A.LargestMultiKill * 1.0)							AS 'AverageLargestMultiKill'
 	,AVG(A.DoubleKills * 1.0)								AS 'AverageDoubleKills'
@@ -57,7 +62,12 @@ SELECT
 	,SUM(A.Deaths)									AS 'TotalDeaths'
 	,SUM(A.Assists)									AS 'TotalAssists'
 	,(SUM(A.Kills * 1.0) + SUM(A.Assists * 1.0))
-	/ SUM(A.Deaths * 1.0)							AS 'OverallKDA'
+	/ SUM(
+		CASE
+			WHEN A.Deaths = 0
+			THEN 1
+			ELSE A.Deaths 
+		END * 1.0)									AS 'OverallKDA'
 	,MAX(A.LargestKillSpree)						AS 'MaxKillSpree'
 	,MAX(A.LargestMultiKill)						AS 'MaxMultiKill'
 	,SUM(A.DoubleKills)								AS 'TotalDoubleKills'
@@ -88,10 +98,6 @@ GROUP BY
 	B.SummonerName 
 GO
 
-SELECT * FROM PlayerAverages
-SELECT * FROM PlayerTotals
-
-
 IF OBJECT_ID('ChampionAverages') IS NOT NULL DROP VIEW ChampionAverages
 GO
 CREATE VIEW ChampionAverages AS
@@ -103,7 +109,12 @@ SELECT
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
-	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/ A.Deaths * 1.0)	AS 'AverageKDA'
+	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/
+		CASE
+			WHEN A.Deaths = 0
+			THEN 1
+			ELSE A.Deaths 
+		END * 1.0)	AS 'AverageKDA'
 	,AVG(A.LargestKillSpree * 1.0)							AS 'AverageLargestKillSpree'
 	,AVG(A.LargestMultiKill * 1.0)							AS 'AverageLargestMultiKill'
 	,AVG(A.DoubleKills * 1.0)								AS 'AverageDoubleKills'
@@ -145,7 +156,12 @@ SELECT
 	,SUM(A.Deaths)										AS 'TotalDeaths'
 	,SUM(A.Assists)										AS 'TotalAssists'
 	,(SUM(A.Kills * 1.0) + SUM(A.Assists * 1.0))
-	/ SUM(A.Deaths * 1.0)								AS 'OverallKDA'
+	/ SUM(
+		CASE
+			WHEN A.Deaths = 0
+			THEN 1
+			ELSE A.Deaths 
+		END * 1.0)									AS 'OverallKDA'
 	,MAX(A.LargestKillSpree)							AS 'MaxKillSpree'
 	,MAX(A.LargestMultiKill)							AS 'MaxMultiKill'
 	,SUM(A.DoubleKills)									AS 'TotalDoubleKills'
@@ -174,20 +190,7 @@ FROM
 	ON C.ChampionID = B.ChampionID
 GROUP BY 
 	C.ChampionName
-GO
-
-SELECT * FROM PlayerAverages
-SELECT * FROM PlayerTotals
-SELECT * FROM ChampionAverages
-SELECT * FROM ChampionTotals
-
-SELECT DISTINCT
-	ChampionName
-FROM 
-	Champions
-	LEFT JOIN MatchTeamParticipants
-	ON Champions.ChampionID = MatchTeamParticipants.ChampionID
-	
+GO	
 
 IF OBJECT_ID('TeamTotals') IS NOT NULL DROP VIEW TeamTotals
 GO
@@ -222,7 +225,12 @@ SELECT
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
-	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/ A.Deaths * 1.0)	AS 'AverageKDA'
+	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/
+		CASE
+			WHEN A.Deaths = 0
+			THEN 1
+			ELSE A.Deaths 
+		END * 1.0)	AS 'AverageKDA'
 	,AVG(A.LargestKillSpree * 1.0)							AS 'AverageLargestKillSpree'
 	,AVG(A.LargestMultiKill * 1.0)							AS 'AverageLargestMultiKill'
 	,AVG(A.DoubleKills	* 1.0)								AS 'AverageDoubleKills'
@@ -254,7 +262,7 @@ FROM
 		JOIN MatchTeamParticipantStats AS A
 			JOIN Matches D
 			ON A.MatchID = D.MatchID
-			JOIN TotalMinionsKilledByTeam AS E
+			JOIN TeamTotals AS E
 			ON A.MatchID = E.MatchID AND A.TeamID = E.TeamID			
 			
 		ON A.MatchID = B.MatchID AND A.ParticipantID = B.ParticipantID
@@ -275,7 +283,12 @@ SELECT
 	,SUM(A.Deaths)									AS 'TotalDeaths'
 	,SUM(A.Assists)									AS 'TotalAssists'
 	,(SUM(A.Kills * 1.0) + SUM(A.Assists * 1.0))
-	/ SUM(A.Deaths * 1.0)							AS 'OverallKDA'
+	/ SUM(
+		CASE
+			WHEN A.Deaths = 0
+			THEN 1
+			ELSE A.Deaths 
+		END * 1.0)									AS 'OverallKDA'
 	,MAX(A.LargestKillSpree)						AS 'MaxKillSpree'
 	,MAX(A.LargestMultiKill)						AS 'MaxMultiKill'
 	,SUM(A.DoubleKills)								AS 'TotalDoubleKills'
@@ -307,7 +320,7 @@ FROM
 		JOIN MatchTeamParticipantStats AS A
 			JOIN Matches D
 			ON A.MatchID = D.MatchID
-			JOIN TotalMinionsKilledByTeam AS E
+			JOIN TeamTotals AS E
 			ON A.MatchID = E.MatchID AND A.TeamID = E.TeamID			
 			
 		ON A.MatchID = B.MatchID AND A.ParticipantID = B.ParticipantID
@@ -315,48 +328,4 @@ FROM
 GROUP BY 
 	F.SummonerName, C.ChampionName
 GO
-SELECT * FROM PlayerAveragesByChampion ORDER BY AverageMultiKillScore DESC
-SELECT * FROM PlayerTotalsByChampion  ORDER BY MultiKillScore DESC
 
-
-SELECT 
-	C.ChampionID,
-	C.ChampionName,
-	COALESCE(COUNT(B.ChampionID),0) AS TimesPicked,
-	TotalMatches,
-	FORMAT((COALESCE(COUNT(B.ChampionID),0) * 1.0) / (TotalMatches  * 1.0), 'P') AS 'PickRate'
-FROM
-	Champions AS C
-	LEFT JOIN MatchTeamParticipants AS B		
-		JOIN Players AS F 
-		ON B.AccountID = F.AccountID
-		JOIN MatchTeamParticipantStats AS A
-			JOIN Matches AS D
-				JOIN ( SELECT COUNT(*) AS 'TotalMatches' FROM Matches) AS T ON 1 = 1
-			ON A.MatchID = D.MatchID			
-		ON A.MatchID = B.MatchID AND A.ParticipantID = B.ParticipantID
-	ON C.ChampionID = B.ChampionID
-GROUP BY
-	C.ChampionID,
-	C.ChampionName,
-	TotalMatches
-ORDER BY
-	COALESCE(COUNT(B.ChampionID),0) DESC
-
-
-
-SELECT * FROM PlayerTotalsByChampion ORDER BY TotalPentaKills DESC, TotalQuadraKills DESC, TotalTripleKills DESC, TotalDoubleKills DESC, TotalKills DESC
-
-SELECT * FROM PlayerAverages WHERE GameCount > 10 ORDER BY AverageMultiKillScore DESC
-
-SELECT
-	SummonerName,
-	GameCount,
-	(TotalDamageToChamps * 1.0) / (TotalKills * 1.0) AS 'AvgDmgPerKill',
-	(TotalDamageToChamps * 1.0) / (GameCount * 1.0)	 AS 'AvgDmgPerGame'
-FROM
-	PlayerTotals
-WHERE 
-	GameCount > 10
-ORDER BY
-	(TotalDamageToChamps * 1.0) / (TotalKills * 1.0) 

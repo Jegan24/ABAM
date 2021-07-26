@@ -735,6 +735,22 @@ EXEC dbo.Populate_DateInfo
 	@End_Date = '1/1/2030';	  -- End of date range to process
 GO
 
+IF OBJECT_ID('CalculateKDA') IS NOT NULL DROP FUNCTION CalculateKDA
+GO
+CREATE FUNCTION dbo.CalculateKDA ( 
+	@kills		INT,
+	@deaths		INT,
+	@assists	INT)
+RETURNS FLOAT
+AS
+BEGIN
+	IF @deaths < 1.0
+	BEGIN
+		SET @deaths = 1.0
+	END
+
+	RETURN (@kills * 1.0 + @assists * 1.0) / (@deaths * 1.0)
+END
 
 GO
 IF OBJECT_ID('TrackedPlayers') IS NOT NULL DROP VIEW TrackedPlayers
@@ -753,7 +769,7 @@ SELECT
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
-	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/ A.Deaths * 1.0)	AS 'AverageKDA'
+	,AVG(dbo.CalculateKDA(A.Kills, A.Deaths, A.Assists))	AS 'AverageKDA'
 	,AVG(A.LargestKillSpree * 1.0)							AS 'AverageLargestKillSpree'
 	,AVG(A.LargestMultiKill * 1.0)							AS 'AverageLargestMultiKill'
 	,AVG(A.DoubleKills * 1.0)								AS 'AverageDoubleKills'
@@ -793,8 +809,9 @@ SELECT
 	,SUM(A.Kills)									AS 'TotalKills'
 	,SUM(A.Deaths)									AS 'TotalDeaths'
 	,SUM(A.Assists)									AS 'TotalAssists'
-	,(SUM(A.Kills * 1.0) + SUM(A.Assists * 1.0))
-	/ SUM(A.Deaths * 1.0)							AS 'OverallKDA'
+	,dbo.CalculateKDA(
+		SUM(A.Kills), SUM(A.Deaths), SUM(A.Assists))
+													AS 'OverallKDA'
 	,MAX(A.LargestKillSpree)						AS 'MaxKillSpree'
 	,MAX(A.LargestMultiKill)						AS 'MaxMultiKill'
 	,SUM(A.DoubleKills)								AS 'TotalDoubleKills'
@@ -804,7 +821,7 @@ SELECT
 	,SUM(A.PentaKills)	* 5 
 	+SUM(A.QuadraKills)	* 4
 	+SUM(A.TripleKills)	* 3
-	+SUM(A.DoubleKills)	* 2								AS 'MultiKillScore'
+	+SUM(A.DoubleKills)	* 2							AS 'MultiKillScore'
 	,SUM(A.TotalDamageToChampions)					AS 'TotalDamageToChamps'
 	,SUM(A.TotalDamageTaken)						AS 'TotalDamageTaken'
 	,SUM(A.DamageSelfMitigated)						AS 'TotalDamageSelfMitigated'
@@ -836,7 +853,7 @@ SELECT
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
-	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/ A.Deaths * 1.0)	AS 'AverageKDA'
+	,AVG(dbo.CalculateKDA(A.Kills, A.Deaths, A.Assists))		AS 'AverageKDA'
 	,AVG(A.LargestKillSpree * 1.0)							AS 'AverageLargestKillSpree'
 	,AVG(A.LargestMultiKill * 1.0)							AS 'AverageLargestMultiKill'
 	,AVG(A.DoubleKills * 1.0)								AS 'AverageDoubleKills'
@@ -877,8 +894,8 @@ SELECT
 	,SUM(A.Kills)										AS 'TotalKills'
 	,SUM(A.Deaths)										AS 'TotalDeaths'
 	,SUM(A.Assists)										AS 'TotalAssists'
-	,(SUM(A.Kills * 1.0) + SUM(A.Assists * 1.0))
-	/ SUM(A.Deaths * 1.0)								AS 'OverallKDA'
+	,dbo.CalculateKDA(
+		SUM(A.Kills), SUM(A.Deaths), SUM(A.Assists))	AS 'OverallKDA'
 	,MAX(A.LargestKillSpree)							AS 'MaxKillSpree'
 	,MAX(A.LargestMultiKill)							AS 'MaxMultiKill'
 	,SUM(A.DoubleKills)									AS 'TotalDoubleKills'
@@ -942,7 +959,7 @@ SELECT
 	,AVG(A.Kills * 1.0)										AS 'AverageKills'
 	,AVG(A.Deaths * 1.0)									AS 'AverageDeaths'
 	,AVG(A.Assists * 1.0)									AS 'AverageAssists'
-	,AVG((A.Kills * 1.0 + A.Assists * 1.0)/ A.Deaths * 1.0)	AS 'AverageKDA'
+	,AVG(dbo.CalculateKDA(A.Kills, A.Deaths, A.Assists))		AS 'AverageKDA'
 	,AVG(A.LargestKillSpree * 1.0)							AS 'AverageLargestKillSpree'
 	,AVG(A.LargestMultiKill * 1.0)							AS 'AverageLargestMultiKill'
 	,AVG(A.DoubleKills	* 1.0)								AS 'AverageDoubleKills'
@@ -969,7 +986,7 @@ SELECT
 FROM	
 	Champions AS C
 	JOIN MatchTeamParticipants AS B		
-		JOIN Players AS F 
+		JOIN TrackedPlayers AS F 
 		ON B.AccountID = F.AccountID
 		JOIN MatchTeamParticipantStats AS A
 			JOIN Matches D
@@ -994,8 +1011,9 @@ SELECT
 	,SUM(A.Kills)									AS 'TotalKills'
 	,SUM(A.Deaths)									AS 'TotalDeaths'
 	,SUM(A.Assists)									AS 'TotalAssists'
-	,(SUM(A.Kills * 1.0) + SUM(A.Assists * 1.0))
-	/ SUM(A.Deaths * 1.0)							AS 'OverallKDA'
+	,dbo.CalculateKDA(
+		SUM(A.Kills), SUM(A.Deaths), SUM(A.Assists))
+													AS 'OverallKDA'
 	,MAX(A.LargestKillSpree)						AS 'MaxKillSpree'
 	,MAX(A.LargestMultiKill)						AS 'MaxMultiKill'
 	,SUM(A.DoubleKills)								AS 'TotalDoubleKills'
@@ -1022,7 +1040,7 @@ SELECT
 FROM	
 	Champions AS C
 	JOIN MatchTeamParticipants AS B		
-		JOIN Players AS F 
+		JOIN TrackedPlayers AS F 
 		ON B.AccountID = F.AccountID
 		JOIN MatchTeamParticipantStats AS A
 			JOIN Matches D
@@ -1036,4 +1054,62 @@ GROUP BY
 	F.SummonerName, C.ChampionName
 GO
 
+IF OBJECT_ID('AllMatchesByPlayer')	IS NOT NULL DROP VIEW AllMatchesByPlayer
+GO
+CREATE VIEW AllMatchesByPlayer
+AS
+SELECT
+	 F.SummonerName
+	,C.ChampionName
+	,A.MatchID							
+	,GameLengthInSeconds
+	,A.Kills
+	,A.Deaths
+	,A.Assists
+	,dbo.CalculateKDA(A.Kills, A.Deaths,A.Assists) AS 'KDA'
+	,A.LargestKillSpree
+	,A.LargestMultiKill
+	,A.DoubleKills
+	,A.TripleKills
+	,A.QuadraKills
+	,A.PentaKills
+	,A.PentaKills	* 5 
+	+A.QuadraKills	* 4
+	+A.TripleKills	* 3
+	+A.DoubleKills	* 2								AS 'MultiKillScore'
+	,A.TotalDamageToChampions					
+	,A.PhysicalDamageToChampions				
+	,A.MagicDamageToChampions					
+	,A.TrueDamageToChampions
+	,(A.TotalDamageToChampions * 1.0)
+	/(D.GameLengthInSeconds * 1.0)					AS 'DamagePerSecond'
+	,(A.TotalDamageToChampions * 1.0)
+	/(D.GameLengthInSeconds / 60.0)					AS 'DamagePerMinute'
+	,A.TotalDamageTaken						
+	,A.DamageSelfMitigated					
+	,A.TotalHeal							
+	,A.GoldEarned							
+	,A.TotalMinionsKilled					
+	,E.TeamTotalMinionsKilled
+	,A.TurretKills			
+	,A.DamageDealtToTurrets	
+
+FROM	
+	Champions AS C
+	JOIN MatchTeamParticipants AS B		
+		JOIN TrackedPlayers AS F 
+		ON B.AccountID = F.AccountID
+		JOIN MatchTeamParticipantStats AS A
+			JOIN Matches D
+			ON A.MatchID = D.MatchID
+			JOIN TeamTotals AS E
+			ON A.MatchID = E.MatchID AND A.TeamID = E.TeamID			
+			
+		ON A.MatchID = B.MatchID AND A.ParticipantID = B.ParticipantID
+	ON C.ChampionID = B.ChampionID
+GO
+
 -- CREATE LOGIN abamreader WITH PASSWORD = 'abam'; CREATE USER abamreader FOR LOGIN abamreader; GRANT SELECT ON SCHEMA :: dbo TO abamreader WITH GRANT OPTION;  
+-- UPDATE Players SET TrackStats = 0 WHERE SummonerName = N'EvangelineCrux'
+
+-- SELECT * FROM AllMatchesByPlayer WHERE SummonerName = N'iPooUnicorns'

@@ -42,7 +42,7 @@ CREATE TABLE MatchTeams
 	MatchID				BIGINT		NOT NULL,
 	TeamID				INT			NOT NULL,
 	Win					BIT			NOT NULL,
-	FirstBlood			BIT			NOT NULL,
+	FirstBlood			BIT			NOT NULL,   
 	FirstTower			BIT			NOT NULL,
 	FirstInhibitor		BIT			NOT NULL,
 	TowerKills			INT			NOT NULL,
