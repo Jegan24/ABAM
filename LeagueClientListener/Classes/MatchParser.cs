@@ -32,14 +32,18 @@ namespace ABAM_Stats.Classes
             {
                 currentMatch = matchInfo.Match;
                 //var transaction = await sqlConnection.BeginTransactionAsync();
-                // skip games already in db and ignore non-custom games
-                if (matchIDsInDb.Contains(currentMatch.gameId)
-                    || currentMatch.queueId != 0
+                // skip games already in db and ignore non-custom games                
+                if (matchIDsInDb.Contains(currentMatch.gameId))
+                {
+                    Console.WriteLine($"Skipping match with ID of {currentMatch.gameId}. It's already in the database.");
+                    continue;
+                }
+                else if (currentMatch.queueId != 0
                     || string.Compare(currentMatch.gameType, "CUSTOM_GAME", StringComparison.OrdinalIgnoreCase) != 0
                     || string.Compare(currentMatch.gameMode, "ARAM", StringComparison.OrdinalIgnoreCase) != 0
                     || matchInfo.Match.participantIdentities.Where(pI => !string.IsNullOrEmpty(pI?.player?.summonerName)).Count() != 10)
                 {
-                    Console.WriteLine($"Skipping match with ID of {currentMatch.gameId}. Either it's already in the database or failed validation.");
+                    Console.WriteLine($"Skipping match with ID of {currentMatch.gameId}. It failed validation.");
                     continue;
                 }
                 Console.WriteLine($"Adding match with ID of {currentMatch.gameId}");
@@ -53,9 +57,9 @@ namespace ABAM_Stats.Classes
                         if (playerInfo.SummonerName != player.summonerName && playerInfo.LastUpdated < matchDate)
                         {
                             await UpdatePlayerInfo(player);
-                            //var newPlayerInfo = playerInfo with { SummonerName = player.summonerName, LastUpdated = GetDateTimeOfMatch(currentMatch) };
-                            //playersInfo.Remove(playerInfo);
-                            //playersInfo.Add(newPlayerInfo);
+                            var newPlayerInfo = playerInfo with { SummonerName = player.summonerName, LastUpdated = GetDateTimeOfMatch(currentMatch) };
+                            playersInfo.Remove(playerInfo);
+                            playersInfo.Add(newPlayerInfo);
                             Console.WriteLine($"Summoner: {playerInfo.SummonerName} changed their name to: {player.summonerName}");
                         }
                     }
@@ -87,9 +91,9 @@ namespace ABAM_Stats.Classes
             SqlCommand sqlCommand = new SqlCommand();
             sqlCommand.Connection = sqlConnection;
             sqlCommand.CommandText = $"UPDATE Players SET SummonerName = N'{player.summonerName}', LastUpdated = '{GetDateTimeOfMatch(currentMatch)}' WHERE AccountID = {player.accountId}";
-            await CheckConnection();
+            await EnsureConnectionIsOpen();
             await sqlCommand.ExecuteNonQueryAsync();
-            playersInfo = new List<PlayerInfo>(await GetPlayerNamesAndIDs());
+            //playersInfo = new List<PlayerInfo>(await GetPlayerNamesAndIDs());
         }
 
         private async Task LoadDbMetaData()
@@ -101,13 +105,13 @@ namespace ABAM_Stats.Classes
 
         private async Task AddPlayerToDb(Player player)
         {
-            
+
 
             string commandText =
                 $"INSERT INTO Players (AccountID, SummonerName, SummonerID, TrackStats, LastUpdated) " +
                 $"VALUES ({player.accountId}, N'{player.summonerName}', {player.summonerId}, 1, '{GetDateTimeOfMatch(currentMatch)}')";
-            SqlCommand sqlCommand = new SqlCommand(commandText, sqlConnection);            
-            await CheckConnection();
+            SqlCommand sqlCommand = new SqlCommand(commandText, sqlConnection);
+            await EnsureConnectionIsOpen();
             await sqlCommand.ExecuteNonQueryAsync();
         }
 
@@ -121,7 +125,7 @@ namespace ABAM_Stats.Classes
                 $"INSERT INTO Matches (MatchID, DateOfMatch, Duration, GameLengthInSeconds) " +
                 $"VALUES ({match.gameId},'{date}', '{duration}', {match.gameDuration})";
             sqlCommand.Connection = sqlConnection;
-            await CheckConnection();
+            await EnsureConnectionIsOpen();
             await sqlCommand.ExecuteNonQueryAsync();
 
             sqlCommand = new SqlCommand();
@@ -129,7 +133,7 @@ namespace ABAM_Stats.Classes
                 $"INSERT INTO MatchMetaData (MatchID, DateAdded, RawJson)" +
                 $"VALUES ({match.gameId}, GETDATE(), N'{matchInfo.Json}')";
             sqlCommand.Connection = sqlConnection;
-            await CheckConnection();
+            await EnsureConnectionIsOpen();
             await sqlCommand.ExecuteNonQueryAsync();
         }
 
@@ -147,8 +151,8 @@ namespace ABAM_Stats.Classes
                 $"          {(team.firstInhibitor ? 1 : 0)}," +
                 $"          {team.towerKills}," +
                 $"          {team.inhibitorKills})";
-            SqlCommand sqlCommand = new SqlCommand(commandText, sqlConnection);            
-            await CheckConnection();
+            SqlCommand sqlCommand = new SqlCommand(commandText, sqlConnection);
+            await EnsureConnectionIsOpen();
             await sqlCommand.ExecuteNonQueryAsync();
         }
 
@@ -166,7 +170,7 @@ namespace ABAM_Stats.Classes
                 $"          {participant.spell1Id}," +
                 $"          {participant.spell2Id})";
             SqlCommand sqlCommand = new SqlCommand(commandText, sqlConnection);
-            await CheckConnection();
+            await EnsureConnectionIsOpen();
             await sqlCommand.ExecuteNonQueryAsync();
 
 
@@ -351,7 +355,7 @@ namespace ABAM_Stats.Classes
                 Value = JsonConvert.SerializeObject(new { Value1 = stats.perk5Var1, Value2 = stats.perk5Var2, Value3 = stats.perk5Var3 }),
                 SqlDbType = SqlDbType.NVarChar
             });
-            await CheckConnection();
+            await EnsureConnectionIsOpen();
             await sqlCommand.ExecuteNonQueryAsync();
         }
 
@@ -359,7 +363,7 @@ namespace ABAM_Stats.Classes
         {
             List<long> IDs = new List<long>();
             SqlCommand cmd = new SqlCommand($"SELECT {columnName} FROM {tableName}", sqlConnection);
-            await CheckConnection();
+            await EnsureConnectionIsOpen();
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())
@@ -375,7 +379,7 @@ namespace ABAM_Stats.Classes
         {
             var output = new List<PlayerInfo>();
             SqlCommand cmd = new SqlCommand($"SELECT AccountID, SummonerName, LastUpdated FROM Players", sqlConnection);
-            await CheckConnection();
+            await EnsureConnectionIsOpen();
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())
@@ -389,7 +393,48 @@ namespace ABAM_Stats.Classes
 
             return output;
         }
-        private async Task CheckConnection()
+        public async Task UpdateMMR()
+        {
+            var players = await GetPlayerNamesAndIDs();
+
+            foreach (var player in players)
+            {
+                Console.WriteLine($"Getting MMR for: {player.SummonerName}");
+                try
+                {
+                    var mmrResponse = await WhatIsMyMMR.GetMMR(player.SummonerName);
+                    if (mmrResponse?.ARAM?.Average != null)
+                    {
+                        Console.WriteLine($"{player.SummonerName} has an MMR of {mmrResponse.ARAM.Average.Value} which is approximately {mmrResponse.ARAM.ClosestRank}.");
+                        await SetMMR(player, mmrResponse.ARAM);
+                    }                    
+                    else 
+                    {
+                        Console.WriteLine("Response did not contain ARAM data.");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unexpected error occured:");
+                    Console.WriteLine(ex.Message);
+                }
+                await Task.Delay(TimeSpan.FromSeconds(2));
+            }
+        }
+        private async Task SetMMR(PlayerInfo player, ARAM aram)
+        {
+            SqlCommand cmd = new SqlCommand("UpdateMMR", sqlConnection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add(new SqlParameter("@AccountID", player.AccountID));
+            cmd.Parameters.Add(new SqlParameter("@MMR", Convert.ToInt32(aram.Average)));
+            cmd.Parameters.Add(new SqlParameter("@Rank", aram.ClosestRank));
+            await EnsureConnectionIsOpen();
+            await cmd.ExecuteNonQueryAsync();
+        }
+        private async Task EnsureConnectionIsOpen()
         {
             if (sqlConnection.State != ConnectionState.Open)
             {

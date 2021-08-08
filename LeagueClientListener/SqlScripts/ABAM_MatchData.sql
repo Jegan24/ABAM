@@ -32,8 +32,13 @@ CREATE TABLE Players
 	AccountID			BIGINT			NOT NULL,
 	SummonerName		NVARCHAR(63)	NOT NULL,
 	SummonerID			BIGINT			NOT NULL,
-	TrackStats			BIT				NOT NULL,
-	LastUpdated			DATETIME		NOT NULL,
+	TrackStats			BIT				NOT NULL DEFAULT 1,
+	LastUpdated			DATETIME		NOT NULL,	
+	TrackMMR			BIT				NOT NULL DEFAULT 0,
+	CurrentMMR			INT					NULL,
+	CurrentRank			VARCHAR(63)			NULL,
+	PeakMMR				INT					NULL,
+	PeakRank			VARCHAR(63)			NULL
 	CONSTRAINT PK_Players PRIMARY KEY (AccountID)
 )
 

@@ -19,27 +19,19 @@ namespace ABAM_Stats
         private static string connectionString;
         static async Task Main(string[] args)
         {
+            await FocusWindow();
             var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
             Console.WriteLine("Use AWS DB?");
             var response = Console.ReadLine();
             if (response.StartsWith("y", StringComparison.OrdinalIgnoreCase))
             {
                 configuration.Providers.First().TryGet("awsDb", out connectionString);
-
             }
             else
             {
                 configuration.Providers.First().TryGet("localDb", out connectionString);
-
             }
-
-            string uniqueTitle = Guid.NewGuid().ToString();
-            Console.Title = uniqueTitle;
-            await Task.Delay(50);
-            IntPtr handle = FindWindowByCaption(IntPtr.Zero, uniqueTitle);
-            SetForegroundWindow(handle);
-            await Task.Delay(50);
-            Console.Title = "ABAM Data";
 
             Console.WriteLine("Update Static Data?");
             response = Console.ReadLine();
@@ -76,7 +68,7 @@ namespace ABAM_Stats
             catch (Exception ex)
             {
                 Console.Clear();
-                Console.WriteLine("Error occured while locating directory. Display system error message?");
+                Console.WriteLine("Error occured while locating directory.");
                 Console.WriteLine($"System error message: {ex.Message}");
             }
 
@@ -94,6 +86,24 @@ namespace ABAM_Stats
                 Console.WriteLine("Didn't find any JSON files, try again.");
             }
 
+            Console.WriteLine("Update MMR? (This will take a while)");
+            response = Console.ReadLine();            
+            if(response.StartsWith("y", StringComparison.OrdinalIgnoreCase))
+            {
+                var matchParser = new MatchParser(connectionString);
+                await matchParser.UpdateMMR();
+            }
+        }
+
+        private static async Task FocusWindow()
+        {
+            string uniqueTitle = Guid.NewGuid().ToString();
+            Console.Title = uniqueTitle;
+            await Task.Delay(50);
+            IntPtr handle = FindWindowByCaption(IntPtr.Zero, uniqueTitle);
+            SetForegroundWindow(handle);
+            await Task.Delay(50);
+            Console.Title = "ABAM Data";
         }
 
         [DllImport("user32.dll")]

@@ -106,8 +106,13 @@ CREATE TABLE Players
 	AccountID			BIGINT			NOT NULL,
 	SummonerName		NVARCHAR(63)	NOT NULL,
 	SummonerID			BIGINT			NOT NULL,
-	TrackStats			BIT				NOT NULL,
-	LastUpdated			DATETIME		NOT NULL,
+	TrackStats			BIT				NOT NULL DEFAULT 1,
+	LastUpdated			DATETIME		NOT NULL,	
+	TrackMMR			BIT				NOT NULL DEFAULT 0,
+	CurrentMMR			INT					NULL,
+	CurrentRank			VARCHAR(63)			NULL,
+	PeakMMR				INT					NULL,
+	PeakRank			VARCHAR(63)			NULL
 	CONSTRAINT PK_Players PRIMARY KEY (AccountID)
 )
 
@@ -934,14 +939,11 @@ SELECT
 	,A.MatchID
 	,SUM(A.TotalMinionsKilled)			AS	'TeamTotalMinionsKilled'
 	,SUM(A.TotalDamageToChampions)		AS	'TeamTotalDamageToChampions'
+	,SUM(A.Kills)						AS	'TeamTotalKills'
+	,SUM(A.Deaths)						AS	'TeamTotalDeaths'
+	,SUM(A.GoldEarned)					AS	'TeamTotalGoldEarned'
 FROM
-	Champions AS C
-	LEFT JOIN MatchTeamParticipants AS B		
-		JOIN MatchTeamParticipantStats AS A
-			JOIN Matches D
-			ON A.MatchID = D.MatchID
-		ON A.MatchID = B.MatchID AND A.ParticipantID = B.ParticipantID
-		ON C.ChampionID = B.ChampionID
+	MatchTeamParticipantStats AS A
 GROUP BY
 	A.TeamID,
 	A.MatchID
@@ -1113,3 +1115,262 @@ GO
 -- UPDATE Players SET TrackStats = 0 WHERE SummonerName = N'EvangelineCrux'
 
 -- SELECT * FROM AllMatchesByPlayer WHERE SummonerName = N'iPooUnicorns'
+
+/****** Script for SelectTopNRows command from SSMS  ******/
+
+IF OBJECT_ID('AllData')	IS NOT NULL DROP VIEW AllData
+GO
+CREATE VIEW AllData
+AS
+SELECT
+	 Matches.MatchID
+	,Matches.Duration
+	,Matches.GameLengthInSeconds
+	,MatchTeams.TeamID
+	,Participants.ParticipantID
+	,Players.AccountID
+	,Players.SummonerName
+	,Players.LastUpdated
+	,ParticipantStats.DbIndex	AS 'StatsDbIndex'
+	,ParticipantStats.Win
+	,Champs.*
+	,Spell1.SummonerSpellID		AS 'Spell1ID'
+	,Spell1.SummonerSpellName	AS 'Spell1Name'
+	,Spell1.RawJson				AS 'Spell1Json'
+	,Spell2.SummonerSpellID		AS 'Spell2ID'
+	,Spell2.SummonerSpellName	AS 'Spell2Name'
+	,Spell2.RawJson				AS 'Spell2Json'
+	,ParticipantStats.Item1ID
+	,ITEM1.ItemName				AS 'Item1Name'
+	,ITEM1.RawJson				AS 'Item1Json'
+	,ParticipantStats.Item2ID
+	,ITEM2.ItemName				AS 'Item2Name'
+	,ITEM2.RawJson				AS 'Item2Json'
+	,ParticipantStats.Item3ID
+	,ITEM3.ItemName				AS 'Item3Name'
+	,ITEM3.RawJson				AS 'Item3Json'
+	,ParticipantStats.Item4ID
+	,ITEM4.ItemName				AS 'Item4Name'
+	,ITEM4.RawJson				AS 'Item4Json'
+	,ParticipantStats.Item5ID
+	,ITEM5.ItemName				AS 'Item5Name'
+	,ITEM5.RawJson				AS 'Item5Json'
+	,ParticipantStats.Item6ID
+	,ITEM6.ItemName				AS 'Item6Name'
+	,ITEM6.RawJson				AS 'Item6Json'
+	,ParticipantStats.Kills
+	,ParticipantStats.Deaths
+	,ParticipantStats.Assists
+	,ParticipantStats.LargestKillSpree
+	,ParticipantStats.LargestMultiKill
+	,ParticipantStats.KillingSprees
+	,ParticipantStats.LongestTimeSpentLiving
+	,ParticipantStats.DoubleKills
+	,ParticipantStats.TripleKills
+	,ParticipantStats.QuadraKills
+	,ParticipantStats.PentaKills
+	,ParticipantStats.TotalDamageDealt
+	,ParticipantStats.PhysicalDamageDealt
+	,ParticipantStats.MagicDamageDealt
+	,ParticipantStats.TrueDamageDealt
+	,ParticipantStats.LargestCriticalStrike
+	,ParticipantStats.TotalDamageToChampions
+	,ParticipantStats.PhysicalDamageToChampions
+	,ParticipantStats.MagicDamageToChampions
+	,ParticipantStats.TrueDamageToChampions
+	,ParticipantStats.TotalHeal
+	,ParticipantStats.TotalUnitsHealed
+	,ParticipantStats.DamageSelfMitigated
+	,ParticipantStats.DamageDealtToObjectives
+	,ParticipantStats.DamageDealtToTurrets
+	,ParticipantStats.TimeCCingOthers
+	,ParticipantStats.TotalDamageTaken
+	,ParticipantStats.PhysicalDamageTaken
+	,ParticipantStats.MagicDamageTaken
+	,ParticipantStats.TrueDamageTaken
+	,ParticipantStats.GoldEarned
+	,ParticipantStats.GoldSpent
+	,ParticipantStats.TurretKills
+	,ParticipantStats.InhibitorKills
+	,ParticipantStats.TotalMinionsKilled
+	,ParticipantStats.TotalTimeCrowdControlDealt
+	,ParticipantStats.ChampLevel
+	,ParticipantStats.FirstBloodKill
+	,ParticipantStats.FirstBloodAssist
+	,ParticipantStats.FirstTowerKill
+	,ParticipantStats.FirstTowerAssist
+	,ParticipantStats.FirstInihibitorKill
+	,ParticipantStats.FirstInhibitorAssist
+	,TeamTotals.TeamTotalMinionsKilled
+	,TeamTotals.TeamTotalDamageToChampions
+	,PrimaryRunePath.RunePathName				AS 'PrimaryRunePathName'
+	,PrimaryRunePath.RawJson					AS 'PrimaryRunePathJson'
+	,ParticipantStats.SecondaryRunePathID
+	,SecondaryRunePath.RunePathName				AS 'SecondaryRunePathName'
+	,SecondaryRunePath.RawJson					AS 'SecondaryRunePathJson'
+	,ParticipantStats.KeystoneID
+	,ParticipantStats.KeystoneValues
+	,Keystone.RuneName							AS 'KeystoneName'
+	,Keystone.RawJson							AS 'KeystoneJson'
+	,ParticipantStats.PrimaryRune1ID	
+	,ParticipantStats.PrimaryRune1Values
+	,PrimaryRune1.RuneName						AS 'PrimaryRune1Name'
+	,PrimaryRune1.RawJson						AS 'PrimaryRune1Json'
+	,ParticipantStats.PrimaryRune2ID
+	,ParticipantStats.PrimaryRune2Values
+	,PrimaryRune2.RuneName						AS 'PrimaryRune2Name'
+	,PrimaryRune2.RawJson						AS 'PrimaryRune2Json'
+	,ParticipantStats.PrimaryRune3ID
+	,ParticipantStats.PrimaryRune3Values
+	,PrimaryRune3.RuneName						AS 'PrimaryRune3Name'
+	,PrimaryRune3.RawJson						AS 'PrimaryRune3Json'
+	,ParticipantStats.SecondaryRune1ID
+	,ParticipantStats.SecondaryRune1Values
+	,SecondaryRune1.RuneName					AS 'SecondaryRune1Name'
+	,SecondaryRune1.RawJson						AS 'SecondaryRune1Json'
+	,ParticipantStats.SecondaryRune2ID
+	,ParticipantStats.SecondaryRune2Values
+	,SecondaryRune2.RuneName					AS 'SecondaryRune2Name'
+	,SecondaryRune2.RawJson						AS 'SecondaryRune2Json'
+	,ParticipantStats.PrimaryRunePathID
+	,DateInfo.*
+FROM 
+	MatchTeamParticipantStats AS ParticipantStats
+		JOIN Items AS ITEM1 ON ParticipantStats.Item1ID = ITEM1.ItemID
+		JOIN Items AS ITEM2 ON ParticipantStats.Item2ID = ITEM2.ItemID
+		JOIN Items AS ITEM3 ON ParticipantStats.Item3ID = ITEM3.ItemID
+		JOIN Items AS ITEM4 ON ParticipantStats.Item4ID = ITEM4.ItemID
+		JOIN Items AS ITEM5 ON ParticipantStats.Item5ID = ITEM5.ItemID
+		JOIN Items AS ITEM6 ON ParticipantStats.Item6ID = ITEM6.ItemID
+		JOIN RunePathRunes AS Keystone ON ParticipantStats.KeystoneID = Keystone.RuneID
+		JOIN RunePathRunes AS PrimaryRune1 ON ParticipantStats.PrimaryRune1ID = PrimaryRune1.RuneID
+		JOIN RunePathRunes AS PrimaryRune2 ON ParticipantStats.PrimaryRune2ID = PrimaryRune2.RuneID
+		JOIN RunePathRunes AS PrimaryRune3 ON ParticipantStats.PrimaryRune3ID = PrimaryRune3.RuneID
+		JOIN RunePathRunes AS SecondaryRune1 ON ParticipantStats.SecondaryRune1ID = SecondaryRune1.RuneID
+		JOIN RunePathRunes AS SecondaryRune2 ON ParticipantStats.SecondaryRune2ID = SecondaryRune2.RuneID
+		JOIN RunePaths AS PrimaryRunePath ON ParticipantStats.PrimaryRunePathID = PrimaryRunePath.RunePathID
+		JOIN RunePaths AS SecondaryRunePath ON ParticipantStats.SecondaryRunePathID = SecondaryRunePath.RunePathID
+		JOIN MatchTeamParticipants AS Participants
+		ON ParticipantStats.MatchID = Participants.MatchID AND ParticipantStats.TeamID = Participants.TeamID AND ParticipantStats.AccountID = Participants.AccountID
+			JOIN MatchTeams AS MatchTeams ON
+			Participants.MatchID = MatchTeams.MatchID AND Participants.TeamID = MatchTeams.TeamID
+				JOIN Matches AS Matches
+				ON MatchTeams.MatchID = Matches.MatchID
+					JOIN DateInfo AS DateInfo
+					ON CAST(Matches.DateOfMatch AS DATE) = DateInfo.Calendar_Date
+				JOIN TeamTotals AS TeamTotals
+				ON MatchTeams.MatchID = TeamTotals.MatchID AND MatchTeams.TeamID = TeamTotals.TeamID
+		JOIN TrackedPlayers AS Players
+		ON Participants.AccountID = Players.AccountID
+		JOIN Champions AS Champs
+		ON Participants.ChampionID = Champs.ChampionID
+		JOIN SummonerSpells AS Spell1
+		ON Participants.Spell1ID = Spell1.SummonerSpellID
+		JOIN SummonerSpells AS Spell2
+		ON Participants.Spell2ID = Spell2.SummonerSpellID
+GO
+
+IF OBJECT_ID('TopTenKills') IS NOT NULL DROP VIEW TopTenKills
+GO
+CREATE VIEW TopTenKills 
+AS
+SELECT TOP 10
+	 AccountID
+	,SummonerName
+	,MatchID
+	,ChampionID
+	,ChampionName
+	,Duration
+	,Calendar_Date_String AS 'MatchDate'
+	,GameLengthInSeconds
+	,Kills
+FROM
+	AllData
+ORDER BY
+	Kills DESC
+GO
+
+IF OBJECT_ID('TopTenDPS') IS NOT NULL DROP VIEW TopTenDPS
+GO
+CREATE VIEW TopTenDPS 
+AS
+SELECT TOP 10
+	 AccountID
+	,SummonerName
+	,MatchID
+	,ChampionID
+	,ChampionName
+	,Duration
+	,Calendar_Date_String AS 'MatchDate'
+	,GameLengthInSeconds
+	,(TotalDamageToChampions * 1.0) / (GameLengthInSeconds * 1.0) AS 'DamagePerSecond'
+	,(TotalDamageToChampions * 1.0) / (GameLengthInSeconds / 60 * 1.0) AS 'DamagePerMinute'
+FROM
+	AllData
+ORDER BY
+	(TotalDamageToChampions * 1.0) / (GameLengthInSeconds * 1.0) DESC
+GO
+
+IF OBJECT_ID('TopTenKDAs') IS NOT NULL DROP VIEW TopTenKDAs
+GO
+CREATE VIEW TopTenKDAs
+AS
+SELECT TOP 10
+	 AccountID
+	,SummonerName
+	,MatchID
+	,ChampionID
+	,ChampionName
+	,Duration
+	,Calendar_Date_String AS 'MatchDate'
+	,GameLengthInSeconds
+	,dbo.CalculateKDA(Kills, Deaths, Assists) AS 'KDA'
+	,Kills
+	,Deaths
+	,Assists
+FROM
+	AllData
+ORDER BY
+	dbo.CalculateKDA(Kills, Deaths, Assists) DESC
+GO
+
+IF OBJECT_ID('MMR_Leaderboard')	IS NOT NULL DROP VIEW MMR_Leaderboard
+GO
+CREATE VIEW MMR_Leaderboard
+AS
+SELECT
+	SummonerName,
+	CurrentMMR,
+	CurrentRank,
+	PeakMMR,
+	PeakRank
+FROM
+	Players
+WHERE
+	TrackMMR = 1
+GO
+
+IF OBJECT_ID('UpdateMMR')	IS NOT NULL DROP PROCEDURE UpdateMMR
+GO
+CREATE PROCEDURE UpdateMMR
+	@AccountID	BIGINT,
+	@MMR		INT,
+	@Rank		VARCHAR(63)
+AS
+BEGIN
+	DECLARE @currentPeak AS INT = (SELECT COALESCE(PeakMMR,0) FROM Players WHERE AccountID = @AccountID)
+
+	IF(@MMR > @currentPeak)
+	BEGIN
+		UPDATE PLAYERS
+		SET PeakMMR = @MMR, PeakRank = @Rank
+		WHERE AccountID = @AccountID
+	END
+	
+	UPDATE Players
+	SET CurrentMMR = @MMR, CurrentRank = @Rank
+	WHERE AccountID = @AccountID
+END
+GO
+
+
