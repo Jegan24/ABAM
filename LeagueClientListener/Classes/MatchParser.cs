@@ -378,7 +378,7 @@ namespace ABAM_Stats.Classes
         private async Task<IEnumerable<PlayerInfo>> GetPlayerNamesAndIDs()
         {
             var output = new List<PlayerInfo>();
-            SqlCommand cmd = new SqlCommand($"SELECT AccountID, SummonerName, LastUpdated FROM Players", sqlConnection);
+            SqlCommand cmd = new SqlCommand($"SELECT AccountID, SummonerName, LastUpdated FROM Players ORDER BY SummonerName", sqlConnection);
             await EnsureConnectionIsOpen();
             using (var reader = await cmd.ExecuteReaderAsync())
             {

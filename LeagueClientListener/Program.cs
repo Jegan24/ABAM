@@ -46,12 +46,12 @@ namespace ABAM_Stats
                 Console.WriteLine($"Completed in {end.Subtract(start).TotalSeconds} seconds.\n");
             }
 
-            Console.WriteLine("Use Archived Match Data?");
+            Console.WriteLine("Use default path?");
             response = Console.ReadLine();
             string directory;
             if (response.StartsWith("y", StringComparison.OrdinalIgnoreCase))
             {
-                directory = Path.Combine(Directory.GetCurrentDirectory(), "MatchArchive");
+                directory = "E:\\ABAM Match History\\All";
             }
             else
             {
@@ -91,7 +91,10 @@ namespace ABAM_Stats
             if(response.StartsWith("y", StringComparison.OrdinalIgnoreCase))
             {
                 var matchParser = new MatchParser(connectionString);
+                var start = DateTime.Now;
                 await matchParser.UpdateMMR();
+                var end = DateTime.Now;
+                Console.WriteLine($"Completed in {end.Subtract(start).ToString():hh:mm:ss}.");
             }
         }
 

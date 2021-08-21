@@ -95,7 +95,7 @@ namespace ABAM_Stats.Classes
                 });
                 await sqlCommand.ExecuteNonQueryAsync();
             }
-
+            
             //await InsertValuesIntoTable("Champions", columnNames, values);
         }
 

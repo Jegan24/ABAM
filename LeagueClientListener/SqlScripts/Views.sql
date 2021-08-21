@@ -392,8 +392,8 @@ SELECT TOP 10
 	,Duration
 	,Calendar_Date_String AS 'MatchDate'
 	,GameLengthInSeconds
-	,(TotalDamageToChampions * 1.0) / (GameLengthInSeconds * 1.0) AS 'DamagePerSecond'
-	,(TotalDamageToChampions * 1.0) / (GameLengthInSeconds / 60 * 1.0) AS 'DamagePerMinute'
+	,(TotalDamageToChampions * 1.0) / (GameLengthInSeconds * 1.0)		AS 'DamagePerSecond'
+	,(TotalDamageToChampions * 1.0) / (GameLengthInSeconds / 60 * 1.0)	AS 'DamagePerMinute'
 FROM
 	AllData
 ORDER BY
